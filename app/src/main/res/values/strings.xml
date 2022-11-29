@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">RandomCats</string>
+
+    <string name="random_cat_image">Random cat image</string>
+    <string name="load_new_cat">Load new cat</string>
+    <string name="share">Share</string>
+    <string name="save_to_gallery">Save to gallery</string>
+    <string name="like">Like</string>
+    <string name="more_options">More options</string>
+    <string name="delete_from_favorite">Delete from favorite</string>
+</resources>
