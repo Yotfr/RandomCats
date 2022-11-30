@@ -1,7 +1,9 @@
 package com.yotfr.randomcats.di
 
 import com.yotfr.randomcats.data.repository.CatsRepositoryImpl
+import com.yotfr.randomcats.data.repository.UserRepositoryImpl
 import com.yotfr.randomcats.domain.repository.CatsRepository
+import com.yotfr.randomcats.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,5 +17,9 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindCatsRepository(catsRepositoryImpl: CatsRepositoryImpl):CatsRepository
+
+    @Binds
+    @Singleton
+    fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl):UserRepository
 
 }

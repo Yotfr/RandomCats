@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.MResult
-import com.yotfr.randomcats.domain.use_case.UseCases
+import com.yotfr.randomcats.domain.use_case.cats.UseCases
 import com.yotfr.randomcats.presentation.screens.random_cat_screen.event.RandomCatEvent
 import com.yotfr.randomcats.presentation.screens.random_cat_screen.model.RandomCatState
 import dagger.hilt.android.lifecycle.HiltViewModel

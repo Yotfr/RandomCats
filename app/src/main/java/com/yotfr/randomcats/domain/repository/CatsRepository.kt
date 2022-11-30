@@ -12,4 +12,6 @@ interface CatsRepository {
 
     suspend fun getFromRemoteDb():Flow<MResult<List<Cat>>>
 
+    suspend fun deleteFromRemoteDb(cat:Cat)
+
 }

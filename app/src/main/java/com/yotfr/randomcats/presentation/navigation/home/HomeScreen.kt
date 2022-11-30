@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.navigation
+package com.yotfr.randomcats.presentation.navigation.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -8,10 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.yotfr.randomcats.presentation.navigation.root.RootGraph
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.GridListScreen
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.HorizontalPagerScreen
 import com.yotfr.randomcats.presentation.screens.profile.ProfileScreen
@@ -19,7 +21,7 @@ import com.yotfr.randomcats.presentation.screens.random_cat_screen.PickerScreen
 
 
 @Composable
-fun MainScreen(){
+fun HomeScreen(rootNavController:NavHostController) {
 
     val navController = rememberNavController()
 
@@ -29,7 +31,10 @@ fun MainScreen(){
         BottomNavItem.Profile
     )
 
-    val onBackPressed: () -> Unit = {
+    val onBackPressed: (args: String?) -> Unit = {
+        navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.set("currentIndex", it)
         navController.popBackStack()
     }
 
@@ -46,13 +51,18 @@ fun MainScreen(){
 
                     navItems.forEachIndexed { _, bottomNavItem ->
                         NavigationBarItem(
-                            icon = {Icon(painter = painterResource(id = bottomNavItem.icon), contentDescription = bottomNavItem.title)},
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = bottomNavItem.icon),
+                                    contentDescription = bottomNavItem.title
+                                )
+                            },
                             label = { Text(text = bottomNavItem.title) },
                             selected = currentRoute == bottomNavItem.screen_route,
                             onClick = {
-                                navController.navigate(bottomNavItem.screen_route){
+                                navController.navigate(bottomNavItem.screen_route) {
                                     navController.graph.startDestinationRoute?.let { screenRoute ->
-                                        popUpTo(screenRoute){
+                                        popUpTo(screenRoute) {
                                             saveState = true
                                         }
                                     }
@@ -67,29 +77,47 @@ fun MainScreen(){
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            NavHost (
+            NavHost(
+                route = RootGraph.HOME,
                 navController = navController,
                 startDestination = BottomNavItem.Home.screen_route
             ) {
 
-                composable(BottomNavItem.Favorite.screen_route){
-                    GridListScreen(navController = navController)
+                composable(BottomNavItem.Favorite.screen_route) {
+                    GridListScreen(
+                        navController = navController,
+                        currentIndex = navController.currentBackStackEntry?.savedStateHandle?.get(
+                            "currentIndex"
+                        )
+                    )
                 }
-                composable(BottomNavItem.Home.screen_route){
+                composable(BottomNavItem.Home.screen_route) {
                     PickerScreen()
                 }
-                composable(BottomNavItem.Profile.screen_route){
-                    ProfileScreen()
+                composable(BottomNavItem.Profile.screen_route) {
+                    ProfileScreen(
+                        navigateToAuth = {
+                            rootNavController.popBackStack()
+                            rootNavController.navigate(RootGraph.AUTH)
+                        }
+                    )
                 }
 
 
-                composable("pager"){
-                    HorizontalPagerScreen(onBackPressed = onBackPressed)
+                composable("pager/{indexFromGrid}") { backStackEntry ->
+                    HorizontalPagerScreen(
+                        onBackPressed = { currentIndex ->
+                            onBackPressed(
+                                currentIndex
+                            )
+                        },
+                        pageFromGrid = backStackEntry.arguments?.getString("indexFromGrid")
+                    )
                 }
 
             }
         }
     }
-    
+
 
 }

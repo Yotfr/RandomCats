@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.navigation
+package com.yotfr.randomcats.presentation.navigation.home
 
 import com.yotfr.randomcats.R
 

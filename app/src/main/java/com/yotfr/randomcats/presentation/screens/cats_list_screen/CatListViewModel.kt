@@ -6,7 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Cat
 import com.yotfr.randomcats.domain.model.MResult
-import com.yotfr.randomcats.domain.use_case.UseCases
+import com.yotfr.randomcats.domain.use_case.cats.UseCases
+import com.yotfr.randomcats.presentation.screens.cats_list_screen.event.CatListEvent
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.model.CatListState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,18 @@ class CatListViewModel @Inject constructor(
 
     init {
         getCats()
+    }
 
+    fun onEvent(event: CatListEvent){
+        when(event){
+            is CatListEvent.DeleteCatFromFavorite -> {
+                viewModelScope.launch {
+                    useCases.deleteCatFromRemoteDb(
+                        cat = event.cat
+                    )
+                }
+            }
+        }
     }
 
     private fun getCats() {

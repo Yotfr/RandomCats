@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import coil.request.SuccessResult
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.base.compose_ext.header
 import com.yotfr.randomcats.domain.model.Cat
+import com.yotfr.randomcats.presentation.screens.cats_list_screen.event.CatListEvent
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -49,7 +51,8 @@ import java.io.OutputStream
 @Composable
 fun GridListScreen(
     viewModel: CatListViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    currentIndex:String?
 ) {
 
     val context = LocalContext.current
@@ -70,7 +73,25 @@ fun GridListScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    val lazyGridState = rememberLazyGridState()
+
+    LaunchedEffect(currentIndex){
+        currentIndex?.let { currentIndex ->
+            val cat = state.groupedCats.values.flatten()[currentIndex.toInt()]
+            val gridList = mutableListOf<Cat>()
+            state.groupedCats.forEach {
+                gridList.add(Cat("","",0L,""))
+                gridList.addAll(it.value)
+            }
+            val gridIndex = gridList.indexOfFirst {
+                it == cat
+            }
+            lazyGridState.scrollToItem(gridIndex)
+        }
+    }
+
     LazyVerticalGrid(
+        state = lazyGridState,
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -120,10 +141,17 @@ fun GridListScreen(
                         }
                     },
                     onDeleteFromFavClicked = {
-
+                        viewModel.onEvent(
+                            CatListEvent.DeleteCatFromFavorite(
+                                cat = it
+                            )
+                        )
                     },
                     onGridClicked = {
-                        navController.navigate("pager")
+                        val indexToPager = state.groupedCats.values.flatten().indexOfFirst {
+                            it == cat
+                        }
+                        navController.navigate(route = "pager/$indexToPager")
                     }
                 )
             }

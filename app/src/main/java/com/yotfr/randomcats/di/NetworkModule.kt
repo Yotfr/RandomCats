@@ -1,5 +1,6 @@
 package com.yotfr.randomcats.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.yotfr.randomcats.base.utlis.Constants
 import com.yotfr.randomcats.data.data_source.CatsApi
 import dagger.Module
@@ -28,6 +29,10 @@ class NetworkModule {
     fun provideCatsApi(retrofit: Retrofit): CatsApi {
         return retrofit.create(CatsApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun providesFirebaseauth():FirebaseAuth = FirebaseAuth.getInstance()
 
 
 }

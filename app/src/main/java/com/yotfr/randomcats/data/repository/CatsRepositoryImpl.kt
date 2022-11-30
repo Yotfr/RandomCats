@@ -81,4 +81,25 @@ class CatsRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    override suspend fun deleteFromRemoteDb(cat: Cat) = withContext(Dispatchers.IO){
+        val firebaseCat = catFirebaseMapper.fromDomain(
+            domainModel = cat
+        )
+        val catQuery = catsCollectionReference
+            .whereEqualTo("id",firebaseCat.id)
+            .whereEqualTo("url",firebaseCat.url)
+            .whereEqualTo("created",firebaseCat.created)
+            .get()
+            .await()
+        if (catQuery.documents.isNotEmpty()){
+            for (document in catQuery){
+                try {
+                    catsCollectionReference.document(document.id).delete().await()
+                } catch (e: Exception) {
+                    Log.e("uploadError", "error -> ${e.message}")
+                }
+            }
+        }
+    }
 }

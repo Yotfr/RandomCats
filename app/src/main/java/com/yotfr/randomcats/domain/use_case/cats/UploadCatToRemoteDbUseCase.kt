@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.domain.use_case
+package com.yotfr.randomcats.domain.use_case.cats
 
 import com.yotfr.randomcats.domain.model.Cat
 import com.yotfr.randomcats.domain.repository.CatsRepository
