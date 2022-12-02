@@ -1,6 +1,6 @@
 package com.yotfr.randomcats.presentation.screens.profile
 
-import androidx.compose.material.Button
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
