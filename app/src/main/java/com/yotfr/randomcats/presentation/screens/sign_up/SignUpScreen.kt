@@ -21,25 +21,31 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yotfr.randomcats.R
+import com.yotfr.randomcats.presentation.screens.sign_up.event.SignUpEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
+    backToSignIn:() -> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
 
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
+
+
 
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            backToSignIn()
+                        }
                     ) {
                         Icon(
                             Icons.Outlined.ArrowBack,
-                            contentDescription = stringResource(id = R.string.go_back)
+                            contentDescription = stringResource(id = R.string.to_sign_in)
                         )
                     }
                 },
@@ -47,7 +53,6 @@ fun SignUpScreen(
             )
         }
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -59,7 +64,7 @@ fun SignUpScreen(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer (
+            Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(32.dp)
@@ -69,7 +74,7 @@ fun SignUpScreen(
                 titleText = stringResource(id = R.string.create_account),
                 subTitleText = stringResource(id = R.string.fill_input_below)
             )
-            Spacer (
+            Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(32.dp)
@@ -80,32 +85,69 @@ fun SignUpScreen(
                 passwordLabelText = stringResource(id = R.string.password),
                 confirmPasswordLabelText = stringResource(id = R.string.confirm_password),
                 showPasswordText = stringResource(id = R.string.show_password),
-                hidePasswordText = stringResource(id = R.string.hide_password)
+                hidePasswordText = stringResource(id = R.string.hide_password),
+                emailText = state.emailText,
+                passwordText = state.passwordText,
+                confirmPasswordText = state.confirmPasswordText,
+                onEmailTextChanged = { newText ->
+                    viewModel.onEvent(
+                        SignUpEvent.UpdateEmailText(
+                            newText = newText
+                        )
+                    )
+                },
+                onPasswordTextChanged = { newText ->
+                    viewModel.onEvent(
+                        SignUpEvent.UpdatePasswordText(
+                            newText = newText
+                        )
+                    )
+                },
+                onConfirmPasswordTextChanged = { newText ->
+                    viewModel.onEvent(
+                        SignUpEvent.UpdateConfirmPasswordText(
+                            newText = newText
+                        )
+                    )
+                },
+                isEmailInvalidError = state.isEmailInvalidError,
+                isEmailEmptyError = state.isEmailEmptyError,
+                isPasswordEmptyError = state.isPasswordEmptyError,
+                emptyEmailFieldErrorMessage = stringResource(id = R.string.enter_email_adress),
+                emptyPasswordFieldErrorMessage = stringResource(id = R.string.enter_password),
+                invalidEmailErrorMessage = stringResource(id = R.string.email_adress_not_valid),
+                isUserAlreadyExistsError = state.isUserAlreadyExistsException,
+                isPasswordsNotMatchError = state.isPasswordsNotMatchError,
+                isPasswordTooShortError = state.isPasswordTooShortError,
+                passwordTooShortErrorMessage = stringResource(id = R.string.password_too_short),
+                passwordsNotMatchErrorMessage = stringResource(id = R.string.passwords_do_not_match)
             )
-            Spacer (
+            Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(32.dp)
             )
-            SignUpButton (
-                modifier = Modifier.fillMaxWidth()
+            SignUpButton(
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 52.dp),
                 signUpButtonText = stringResource(id = R.string.sign_up),
                 onSignUpClicked = {
-                    //TODO
-                }
+                    viewModel.onEvent(SignUpEvent.SignUpUser)
+                },
+                isLoading = state.isLoading
             )
-            Spacer (
+            Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             )
-            ToSignInText (
+            ToSignInText(
                 modifier = Modifier.fillMaxWidth(),
                 toSignInText = stringResource(id = R.string.already_have_acc),
                 toSignInButtonText = stringResource(id = R.string.sign_in),
-                onSignUpClicked = {
-                    //TODO
+                toSignInClicked = {
+                    backToSignIn()
                 }
             )
         }
@@ -151,21 +193,29 @@ fun SignUpInputFields(
     passwordLabelText: String,
     confirmPasswordLabelText: String,
     showPasswordText: String,
-    hidePasswordText: String
+    hidePasswordText: String,
+    emailText: String,
+    passwordText: String,
+    confirmPasswordText: String,
+    onEmailTextChanged: (text: String) -> Unit,
+    onPasswordTextChanged: (text: String) -> Unit,
+    onConfirmPasswordTextChanged: (text: String) -> Unit,
+    isEmailEmptyError: Boolean,
+    isPasswordEmptyError: Boolean,
+    isEmailInvalidError: Boolean,
+    isUserAlreadyExistsError: Boolean,
+    isPasswordsNotMatchError: Boolean,
+    isPasswordTooShortError: Boolean,
+    emptyEmailFieldErrorMessage: String,
+    emptyPasswordFieldErrorMessage: String,
+    invalidEmailErrorMessage: String,
+    passwordTooShortErrorMessage: String,
+    passwordsNotMatchErrorMessage: String,
 ) {
-
-    var loginText by rememberSaveable {
-        mutableStateOf("")
-    }
-    var passwordText by rememberSaveable {
-        mutableStateOf("")
-    }
-    var confirmPasswordText by rememberSaveable {
-        mutableStateOf("")
-    }
 
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
     var confirmPasswordHidden by rememberSaveable { mutableStateOf(true) }
+
 
     Column(
         modifier = modifier,
@@ -173,16 +223,26 @@ fun SignUpInputFields(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
-            value = loginText,
-            onValueChange = { loginText = it },
+            value = emailText,
+            onValueChange = { onEmailTextChanged(it) },
             label = { Text(text = emailLabelText) },
+            isError = isEmailEmptyError || isEmailInvalidError || isUserAlreadyExistsError,
             singleLine = true,
+            supportingText = {
+                if (isEmailEmptyError) {
+                    Text(text = emptyEmailFieldErrorMessage)
+                }
+                if (isEmailInvalidError) {
+                    Text(text = invalidEmailErrorMessage)
+                }
+            },
             leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = emailLabelText) }
         )
         OutlinedTextField(
             value = passwordText,
-            onValueChange = { passwordText = it },
+            onValueChange = { onPasswordTextChanged(it) },
             label = { Text(text = passwordLabelText) },
+            isError = isPasswordEmptyError || isPasswordTooShortError,
             visualTransformation =
             if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -195,17 +255,31 @@ fun SignUpInputFields(
                     val description = if (passwordHidden) showPasswordText else hidePasswordText
                     Icon(imageVector = visibilityIcon, contentDescription = description)
                 }
+            },
+            supportingText = {
+                if (isPasswordEmptyError) {
+                    Text(text = emptyPasswordFieldErrorMessage)
+                }
+                if (isPasswordTooShortError) {
+                    Text(text = passwordTooShortErrorMessage)
+                }
             }
         )
         OutlinedTextField(
             value = confirmPasswordText,
-            onValueChange = { confirmPasswordText = it },
+            onValueChange = { onConfirmPasswordTextChanged(it) },
             label = { Text(text = confirmPasswordLabelText) },
+            isError = isPasswordsNotMatchError,
             visualTransformation =
             if (confirmPasswordHidden) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
-            leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = confirmPasswordLabelText) },
+            leadingIcon = {
+                Icon(
+                    Icons.Outlined.Lock,
+                    contentDescription = confirmPasswordLabelText
+                )
+            },
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordHidden = !confirmPasswordHidden }) {
                     val visibilityIcon =
@@ -213,6 +287,11 @@ fun SignUpInputFields(
                     val description =
                         if (confirmPasswordHidden) showPasswordText else hidePasswordText
                     Icon(imageVector = visibilityIcon, contentDescription = description)
+                }
+            },
+            supportingText = {
+                if (isPasswordsNotMatchError) {
+                    Text(text = passwordsNotMatchErrorMessage)
                 }
             }
         )
@@ -224,19 +303,24 @@ fun SignUpButton(
     modifier: Modifier,
     signUpButtonText: String,
     onSignUpClicked: () -> Unit,
+    isLoading: Boolean
 ) {
-        Button(
-            modifier = modifier,
-            onClick = {
-                onSignUpClicked()
-            }
-        ) {
+    Button(
+        modifier = modifier,
+        onClick = {
+            onSignUpClicked()
+        }
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator()
+        } else {
             Text(
                 modifier = Modifier.padding(vertical = 10.dp),
                 text = signUpButtonText.uppercase(),
                 style = MaterialTheme.typography.titleMedium
             )
         }
+    }
 }
 
 
@@ -245,7 +329,7 @@ fun ToSignInText(
     modifier: Modifier,
     toSignInText: String,
     toSignInButtonText: String,
-    onSignUpClicked: () -> Unit
+    toSignInClicked: () -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -259,7 +343,7 @@ fun ToSignInText(
             style = MaterialTheme.typography.titleMedium
         )
         TextButton(
-            onClick = { onSignUpClicked() }
+            onClick = { toSignInClicked() }
         ) {
             Text(
                 text = toSignInButtonText,

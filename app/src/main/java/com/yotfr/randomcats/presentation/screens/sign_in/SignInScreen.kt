@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SignInScreen(
     toSignUp: () -> Unit,
-    signedIn: () -> Unit,
+    toMain: () -> Unit,
     viewModel: SignInViewModel = hiltViewModel()
 ) {
 
@@ -49,7 +49,7 @@ fun SignInScreen(
         viewModel.event.collect {
             when (it) {
                 SignInScreenEvent.NavigateHome -> {
-                    signedIn()
+                    toMain()
                 }
                 SignInScreenEvent.ShowInvalidCredentialsError -> {
                     scope.launch {

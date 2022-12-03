@@ -11,21 +11,26 @@ import com.yotfr.randomcats.presentation.screens.sign_up.SignUpScreen
 fun NavGraphBuilder.authNavGraph(navController: NavHostController){
     navigation(
         route = RootGraph.AUTH,
-        startDestination = AuthScreen.SignIn.route
+        startDestination = AuthScreenRoutes.SignIn.route
     ) {
-        composable(route = AuthScreen.SignIn.route){
+        composable(route = AuthScreenRoutes.SignIn.route){
             SignInScreen(
                 toSignUp = {
-                    navController.navigate(AuthScreen.SignUp.route)
+                    navController.navigate(AuthScreenRoutes.SignUp.route)
                 },
-                signedIn = {
-                    navController.popBackStack()
-                    navController.navigate(RootGraph.HOME)
+                toMain = {
+                    navController.navigate(RootGraph.HOME){
+                        popUpTo(RootGraph.ROOT)
+                    }
                 }
             )
         }
-        composable(route = AuthScreen.SignUp.route){
-            SignUpScreen()
+        composable(route = AuthScreenRoutes.SignUp.route){
+            SignUpScreen(
+                backToSignIn = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
