@@ -75,9 +75,9 @@ fun SignInScreen(
                 .fillMaxWidth()
                 .height(32.dp)
         )
-        InputFields(
+        SignInInputFields(
             modifier = Modifier.fillMaxWidth(),
-            loginLabelText = stringResource(id = R.string.email),
+            emailLabelText = stringResource(id = R.string.email),
             passwordLabelText = stringResource(id = R.string.password),
             showPasswordText = stringResource(id = R.string.show_password),
             hidePasswordText = stringResource(id = R.string.hide_password)
@@ -103,10 +103,10 @@ fun SignInScreen(
                 .fillMaxWidth()
                 .weight(1f)
         )
-        SignUpText(
+        ToSignUpText(
             modifier = Modifier.fillMaxWidth(),
-            signUpText = stringResource(id = R.string.do_not_have_acc),
-            signUpButtonText = stringResource(id = R.string.sign_up),
+            toSignUpText = stringResource(id = R.string.do_not_have_acc),
+            toSignUpButtonText = stringResource(id = R.string.sign_up),
             onSignUpClicked = { onSignUp() }
         )
     }
@@ -159,9 +159,9 @@ fun LoginTitle(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InputFields(
+fun SignInInputFields(
     modifier: Modifier,
-    loginLabelText: String,
+    emailLabelText: String,
     passwordLabelText: String,
     showPasswordText: String,
     hidePasswordText: String
@@ -185,9 +185,9 @@ fun InputFields(
         OutlinedTextField(
             value = loginText,
             onValueChange = { loginText = it },
-            label = { Text(text = loginLabelText) },
+            label = { Text(text = emailLabelText) },
             singleLine = true,
-            leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = loginLabelText) }
+            leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = emailLabelText) }
         )
         OutlinedTextField(
             value = passwordText,
@@ -251,10 +251,10 @@ fun LoginButton(
 
 
 @Composable
-fun SignUpText(
+fun ToSignUpText(
     modifier: Modifier,
-    signUpText: String,
-    signUpButtonText: String,
+    toSignUpText: String,
+    toSignUpButtonText: String,
     onSignUpClicked: () -> Unit
 ) {
     Row(
@@ -263,14 +263,16 @@ fun SignUpText(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = signUpText,
+            modifier = Modifier.alpha(0.7f),
+            color = MaterialTheme.colorScheme.secondary,
+            text = toSignUpText,
             style = MaterialTheme.typography.titleMedium
         )
         TextButton(
             onClick = { onSignUpClicked() }
         ) {
             Text(
-                text = signUpButtonText,
+                text = toSignUpButtonText,
                 style = MaterialTheme.typography.titleMedium
             )
         }
