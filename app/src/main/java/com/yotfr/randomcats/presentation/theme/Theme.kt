@@ -84,6 +84,7 @@ fun RandomCatsTheme(
 
     MaterialTheme(
         colorScheme = colors,
+        typography = Typography,
         content = content
     )
 }
