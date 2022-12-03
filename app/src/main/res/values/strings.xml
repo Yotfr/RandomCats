@@ -13,13 +13,18 @@
     
     <string name="login">Login</string>
     <string name="fill_input_below">Please fill the input below here</string>
-    <string name="email">EMAIL</string>
-    <string name="password">PASSWORD</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="do_not_have_acc">Don\'t have an account?</string>
     <string name="sign_up">Sign up</string>
     <string name="show_password">Show password</string>
     <string name="hide_password">Hide password</string>
+    <string name="enter_email_adress">Please enter your email address</string>
+    <string name="enter_password">Please enter password</string>
+    <string name="email_adress_not_valid">Email address is not valid</string>
+    <string name="invalid_credentials">Invalid username or password</string>
+    
 
     <string name="create_account">Create Account</string>
     <string name="confirm_password">CONFIRM PASSWORD</string>

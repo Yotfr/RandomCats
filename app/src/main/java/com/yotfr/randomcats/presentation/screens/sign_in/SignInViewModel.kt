@@ -1,68 +1,197 @@
 package com.yotfr.randomcats.presentation.screens.sign_in
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yotfr.randomcats.domain.model.MResult
+import com.yotfr.randomcats.domain.model.Cause
+import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.model.SignInModel
 import com.yotfr.randomcats.domain.use_case.users.UserUseCases
 import com.yotfr.randomcats.presentation.screens.sign_in.event.SignInEvent
 import com.yotfr.randomcats.presentation.screens.sign_in.event.SignInScreenEvent
 import com.yotfr.randomcats.presentation.screens.sign_in.model.SignInState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val userUseCases: UserUseCases
-): ViewModel() {
+) : ViewModel() {
 
-    private val _state = mutableStateOf(SignInState())
-    val state: State<SignInState> = _state
 
-    private val _event = MutableSharedFlow<SignInScreenEvent>()
-    val event = _event.asSharedFlow()
+    //state for composable
+    private val _state = MutableStateFlow(SignInState())
+    val state = _state.asStateFlow()
 
-    fun onEvent(event: SignInEvent){
-        when(event) {
-            is SignInEvent.SignInUser -> {
-                signInUser(
-                    signInModel = event.signInModel
-                )
+    //uiEvents
+    private val _event = Channel<SignInScreenEvent>()
+    val event = _event.receiveAsFlow()
+
+    fun onEvent(event: SignInEvent) {
+        when (event) {
+            SignInEvent.SignInUser -> {
+                _state.value.apply {
+                    if (isValidatedBeforeSign()) {
+                        signInUser(
+                            signInModel = SignInModel(
+                                email = emailText,
+                                password = passwordText
+                            )
+                        )
+                    }
+                }
+            }
+            is SignInEvent.UpdateEmailText -> {
+                updateEmail(event.newText)
+            }
+            is SignInEvent.UpdatePasswordText -> {
+                updatePassword(event.newText)
             }
         }
     }
 
-    private fun signInUser (signInModel: SignInModel) {
+    private fun signInUser(signInModel: SignInModel) {
         viewModelScope.launch {
             userUseCases.signInUserUseCase(
                 signInModel = signInModel
             ).collectLatest { result ->
-                when(result) {
-                    is MResult.Loading -> {
-                        _state.value = SignInState(
-                            isLoading = true
-                        )
+                when (result) {
+                    is Response.Loading -> {
+                        _state.update {
+                            it.copy(
+                                isLoading = true,
+                                isSuccess = false
+                            )
+                        }
                     }
-                    is MResult.Success -> {
-                        _state.value = SignInState(
-                            isSuccess = true
-                        )
-                        _event.emit(SignInScreenEvent.NavigateHome)
+                    is Response.Success -> {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                isSuccess = true
+                            )
+                        }
                     }
-                    is MResult.Error -> {
-                        _state.value = SignInState(
-                            error = result.message ?:
-                            "Unknown error occured")
+                    is Response.Exception -> {
+                        when (result.cause) {
+                            Cause.InvalidFirebaseCredentialsException -> {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        isSuccess = false,
+                                        emailText = "",
+                                        passwordText = "",
+                                        isInvalidCredentialsError = true
+                                    )
+                                }
+                                _event.send(SignInScreenEvent.ShowInvalidCredentialsError)
+                            }
+                            is Cause.UnknownException -> {
+
+                            }
+                            else -> Unit
+                        }
                     }
+                    else -> Unit
                 }
             }
         }
     }
 
+    private fun updateEmail(emailText: String) {
+        viewModelScope.launch {
+            if (emailText.isBlank()) {
+                _state.update {
+                    it.copy(
+                        emailText = emailText,
+                        isEmailInvalidError = false,
+                        isEmailEmptyError = true,
+                        isInvalidCredentialsError = false
+                    )
+                }
+                return@launch
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(emailText).matches()) {
+                _state.update {
+                    it.copy(
+                        emailText = emailText,
+                        isEmailEmptyError = false,
+                        isEmailInvalidError = true,
+                        isInvalidCredentialsError = false
+                    )
+                }
+                return@launch
+            }
+            _state.update {
+                it.copy(
+                    emailText = emailText,
+                    isEmailEmptyError = false,
+                    isEmailInvalidError = false,
+                    isInvalidCredentialsError = false
+                )
+            }
+            return@launch
+        }
+    }
+
+    private fun updatePassword(passwordText: String) {
+        viewModelScope.launch {
+            if (passwordText.isBlank()) {
+                _state.update {
+                    it.copy(
+                        passwordText = passwordText,
+                        isPasswordEmptyError = true,
+                        isInvalidCredentialsError = false
+                    )
+                }
+                return@launch
+            }
+            _state.update {
+                it.copy(
+                    passwordText = passwordText,
+                    isPasswordEmptyError = false,
+                    isInvalidCredentialsError = false
+                )
+            }
+            return@launch
+        }
+    }
+
+    private fun isValidatedBeforeSign():Boolean {
+        _state.value.apply {
+            if (emailText.isEmpty() || emailText.isBlank()) {
+                _state.update {
+                    it.copy(
+                        isEmailInvalidError = false,
+                        isEmailEmptyError = true,
+                        isInvalidCredentialsError = false
+                    )
+                }
+                return false
+            }
+            if (isEmailInvalidError) {
+                _state.update {
+                    it.copy(
+                        isEmailEmptyError = false,
+                        isEmailInvalidError = true,
+                        isInvalidCredentialsError = false
+                    )
+                }
+                return false
+            }
+            if (passwordText.isEmpty() || passwordText.isBlank()){
+                _state.update {
+                    it.copy(
+                        isPasswordEmptyError = true,
+                        isInvalidCredentialsError = false
+                    )
+                }
+                return false
+            }
+            return true
+        }
+    }
 }

@@ -11,7 +11,8 @@ import com.yotfr.randomcats.data.dto.CatFirebase
 import com.yotfr.randomcats.data.mapper.CatFirebaseMapper
 import com.yotfr.randomcats.data.mapper.CatMapper
 import com.yotfr.randomcats.domain.model.Cat
-import com.yotfr.randomcats.domain.model.MResult
+import com.yotfr.randomcats.domain.model.Cause
+import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.repository.CatsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 import javax.inject.Inject
 
 class CatsRepositoryImpl @Inject constructor(
@@ -30,21 +32,24 @@ class CatsRepositoryImpl @Inject constructor(
 
     private val catsCollectionReference = Firebase.firestore.collection("cats")
 
-    override suspend fun getFromApi(): Flow<MResult<Cat>> = flow {
+    override suspend fun getFromApi(): Flow<Response<Cat, String>> = flow {
         try {
-            emit(MResult.Loading())
+            emit(Response.Loading)
             val catsResponse = catsApi.getCat()
             val cat = catMapper.toDomain(catsResponse)
             emit(
-                MResult.Success(
+                Response.Success(
                     data = cat
                 )
             )
         } catch (e: Exception) {
             emit(
-                MResult.Error(
-                    message = e.message ?: "Unknown error"
+                Response.Exception(
+                    cause = Cause.UnknownException(
+                        message = e.message.toString()
+                    )
                 )
+
             )
         }
     }
@@ -63,37 +68,38 @@ class CatsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getFromRemoteDb(): Flow<MResult<List<Cat>>> = withContext(Dispatchers.IO) {
-        catsCollectionReference
-            .orderBy("created", Query.Direction.DESCENDING)
-            .snapshotFlow()
-            .map { querySnapshot ->
-            MResult.Success(
-                data = querySnapshot.documents.map {
-                    it.toObject<CatFirebase>() ?: throw IllegalArgumentException(
-                        "Document is null"
-                    )
-                }.map { catFirebase ->
-                    catFirebaseMapper.toDomain(
-                        firebaseModel = catFirebase
+    override suspend fun getFromRemoteDb(): Flow<Response<List<Cat>,String>> =
+        withContext(Dispatchers.IO) {
+            catsCollectionReference
+                .orderBy("created", Query.Direction.DESCENDING)
+                .snapshotFlow()
+                .map { querySnapshot ->
+                    Response.Success(
+                        data = querySnapshot.documents.map {
+                            it.toObject<CatFirebase>() ?: throw IllegalArgumentException(
+                                "Document is null"
+                            )
+                        }.map { catFirebase ->
+                            catFirebaseMapper.toDomain(
+                                firebaseModel = catFirebase
+                            )
+                        }
                     )
                 }
-            )
         }
-    }
 
-    override suspend fun deleteFromRemoteDb(cat: Cat) = withContext(Dispatchers.IO){
+    override suspend fun deleteFromRemoteDb(cat: Cat) = withContext(Dispatchers.IO) {
         val firebaseCat = catFirebaseMapper.fromDomain(
             domainModel = cat
         )
         val catQuery = catsCollectionReference
-            .whereEqualTo("id",firebaseCat.id)
-            .whereEqualTo("url",firebaseCat.url)
-            .whereEqualTo("created",firebaseCat.created)
+            .whereEqualTo("id", firebaseCat.id)
+            .whereEqualTo("url", firebaseCat.url)
+            .whereEqualTo("created", firebaseCat.created)
             .get()
             .await()
-        if (catQuery.documents.isNotEmpty()){
-            for (document in catQuery){
+        if (catQuery.documents.isNotEmpty()) {
+            for (document in catQuery) {
                 try {
                     catsCollectionReference.document(document.id).delete().await()
                 } catch (e: Exception) {

@@ -5,7 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yotfr.randomcats.domain.model.MResult
+import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.model.SignUpModel
 import com.yotfr.randomcats.domain.use_case.users.UserUseCases
 import com.yotfr.randomcats.presentation.screens.sign_up.event.SignUpEvent
@@ -41,21 +41,18 @@ class SignUpViewModel @Inject constructor(
                 Log.d("TEST","$signUpModel")
 
                 when(result) {
-                    is MResult.Loading -> {
+                    is Response.Loading -> {
                         _state.value = SignUpState(
                             isLoading = true
                         )
                     }
-                    is MResult.Success -> {
+                    is Response.Success -> {
                         _state.value = SignUpState(
                             isSuccess = true
                         )
                     }
-                    is MResult.Error -> {
-                        _state.value = SignUpState(
-                            error = result.message ?:
-                            "Unknown error occured")
-                        Log.d("TEST","${result.message}")
+                    is Response.Exception -> {
+                        //TODO
                     }
                 }
             }

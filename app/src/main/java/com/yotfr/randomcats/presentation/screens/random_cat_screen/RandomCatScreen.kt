@@ -262,7 +262,7 @@ private fun getImageToShare(bitmap: Bitmap, context: Context):Uri{
 
         uri = FileProvider.getUriForFile(context,"com.yotfr.randomcats",file)
 
-    }catch (e:Exception){
+    }catch (e: java.lang.Exception){
         e.printStackTrace()
     }
     return uri ?: throw Exception("Not found uri")

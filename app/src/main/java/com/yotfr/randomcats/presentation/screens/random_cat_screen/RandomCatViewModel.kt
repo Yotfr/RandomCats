@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yotfr.randomcats.domain.model.MResult
+import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.cats.UseCases
 import com.yotfr.randomcats.presentation.screens.random_cat_screen.event.RandomCatEvent
 import com.yotfr.randomcats.presentation.screens.random_cat_screen.model.RandomCatState
@@ -51,15 +51,14 @@ class RandomCatViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.getRandomCat().collectLatest { result ->
                 when(result) {
-                    is MResult.Loading -> {
+                    is Response.Loading -> {
                         _state.value = RandomCatState(isLoading = true)
                     }
-                    is MResult.Success -> {
+                    is Response.Success -> {
                         _state.value = RandomCatState(cat = result.data)
                     }
-                    is MResult.Error -> {
-                        _state.value = RandomCatState(error = result.message ?:
-                        "Unknown error occured")
+                    is Response.Exception -> {
+                       //TODO
                     }
                 }
             }

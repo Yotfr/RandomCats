@@ -1,6 +1,6 @@
 package com.yotfr.randomcats.domain.use_case.users
 
-import com.yotfr.randomcats.domain.model.MResult
+import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.model.SignInModel
 import com.yotfr.randomcats.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +11,7 @@ class SignInUserUseCase(
     private val userRepository: UserRepository
 ) {
 
-    suspend operator fun invoke(signInModel: SignInModel): Flow<MResult<Unit>> =
+    suspend operator fun invoke(signInModel: SignInModel): Flow<Response<Unit,String>> =
         withContext(Dispatchers.IO) {
             userRepository.signInUser(signInModel)
         }

@@ -1,7 +1,7 @@
 package com.yotfr.randomcats.presentation.screens.sign_in.event
 
-import com.yotfr.randomcats.domain.model.SignInModel
-
 sealed interface SignInEvent {
-    data class SignInUser(val signInModel: SignInModel):SignInEvent
+    object SignInUser:SignInEvent
+    data class UpdateEmailText(val newText:String):SignInEvent
+    data class UpdatePasswordText(val newText:String):SignInEvent
 }

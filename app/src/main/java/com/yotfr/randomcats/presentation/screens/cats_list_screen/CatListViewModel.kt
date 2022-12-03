@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Cat
-import com.yotfr.randomcats.domain.model.MResult
+import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.cats.UseCases
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.event.CatListEvent
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.model.CatListState
@@ -44,7 +44,7 @@ class CatListViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.getCatsFromRemoteDb().collectLatest { result ->
                 when (result) {
-                    is MResult.Success -> {
+                    is Response.Success -> {
                         //TODO:refactor fun groupCatsByDate add today yesterday
                         _state.value = CatListState(
                             groupedCats = groupCatsByDate(
