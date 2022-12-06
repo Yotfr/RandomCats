@@ -61,8 +61,15 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:1.4.0-alpha02"
 
     //accompanist
-    implementation "com.google.accompanist:accompanist-pager:0.27.1"
+    implementation "com.google.accompanist:accompanist-pager:0.28.0"
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
+    implementation "com.google.accompanist:accompanist-placeholder:0.28.0"
 
+    //material motion library
+    implementation "io.github.fornewid:material-motion-compose-navigation:0.10.3"
+
+    //splashScreen
+    implementation 'androidx.core:core-splashscreen:1.0.0'
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'

@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -22,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.sign_up.event.SignUpEvent
+import com.yotfr.randomcats.presentation.screens.sign_up.event.SignUpScreenEvent
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +35,32 @@ fun SignUpScreen(
 
     val state by viewModel.state.collectAsState()
 
+    val context = LocalContext.current
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.event.collect {
+            when (it) {
+                SignUpScreenEvent.ShowUserAlreadyExistsSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = context.resources.getString(R.string.user_already_exists)
+                        )
+                    }
+                }
+                SignUpScreenEvent.UserSuccessfullyCreated -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = context.resources.getString(R.string.account_successfully_created)
+                        )
+                    }
+                    backToSignIn()
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {

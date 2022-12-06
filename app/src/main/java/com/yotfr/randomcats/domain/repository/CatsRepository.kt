@@ -8,7 +8,7 @@ interface CatsRepository {
 
     suspend fun getFromApi(): Flow<Response<Cat,String>>
 
-    suspend fun uploadToRemoteDb(cat:Cat)
+    suspend fun uploadToRemoteDb(cat:Cat):Flow<Response<Unit,String>>
 
     suspend fun getFromRemoteDb():Flow<Response<List<Cat>,String>>
 

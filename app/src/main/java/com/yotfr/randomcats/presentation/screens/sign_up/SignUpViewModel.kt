@@ -92,10 +92,11 @@ class SignUpViewModel @Inject constructor(
                                         isSuccess = false,
                                         emailText = "",
                                         passwordText = "",
+                                        confirmPasswordText = "",
                                         isUserAlreadyExistsException = true
                                     )
                                 }
-                                _event.send(SignUpScreenEvent.ShowUserAlreadyExistsError)
+                                _event.send(SignUpScreenEvent.ShowUserAlreadyExistsSnackbar)
                             }
                             else -> Unit
                         }

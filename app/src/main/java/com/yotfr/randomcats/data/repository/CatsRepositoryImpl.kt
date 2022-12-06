@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -43,25 +44,38 @@ class CatsRepositoryImpl @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            emit(
-                Response.Exception(
-                    cause = Cause.UnknownException(
-                        message = e.message.toString()
+            when(e) {
+                is IOException -> {
+                    emit(
+                        Response.Exception(
+                            cause = Cause.BadConnectionException
+                        )
                     )
-                )
+                }
+                else -> {
+                    emit(
+                        Response.Exception(
+                            cause = Cause.UnknownException(
+                                message = e.message.toString()
+                            )
+                        )
 
-            )
+                    )
+                }
+            }
         }
     }
 
-    override suspend fun uploadToRemoteDb(cat: Cat) {
+    override suspend fun uploadToRemoteDb(cat: Cat): Flow<Response<Unit, String>> = flow{
         withContext(Dispatchers.IO) {
             try {
+                emit(Response.Loading)
                 catsCollectionReference.add(
                     catFirebaseMapper.fromDomain(
                         domainModel = cat
                     )
                 ).await()
+                emit(Response.Success(Unit))
             } catch (e: Exception) {
                 Log.e("uploadError", "error -> ${e.message}")
             }
