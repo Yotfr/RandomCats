@@ -75,7 +75,7 @@ fun HorizontalPagerScreen(
         hasWriteStoragePermission = isGranted
     }
 
-    val state = viewModel.state.value.groupedCats.values.flatten()
+    val state by viewModel.state.collectAsState()
     val pagerState = rememberPagerState(
         initialPage = pageFromGrid?.toInt() ?: 0
     )
@@ -101,9 +101,9 @@ fun HorizontalPagerScreen(
 
     LaunchedEffect(pagerState, state) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
-            if (state.isNotEmpty()) {
-                date = state[page].createdDateString.substringBeforeLast(" ")
-                time = state[page].createdDateString.substringAfterLast(" ")
+            if (state.groupedCats.isNotEmpty()) {
+                date = state.groupedCats[page].createdDateString.substringBeforeLast(" ")
+                time = state.groupedCats[page].createdDateString.substringAfterLast(" ")
                 curPage = page
             }
         }
@@ -127,7 +127,7 @@ fun HorizontalPagerScreen(
                 onShareClicked = {
                     coroutineScope.launch {
                         val bitMap = getBitmapFromUrl(
-                            url = state[curPage].url,
+                            url = state.groupedCats[curPage].url,
                             context = context
                         )
                         val uri = getImageToShare(
@@ -144,12 +144,12 @@ fun HorizontalPagerScreen(
                     if (hasWriteStoragePermission) {
                         coroutineScope.launch {
                             val bitMap = getBitmapFromUrl(
-                                url = state[curPage].url,
+                                url = state.groupedCats[curPage].url,
                                 context = context
                             )
                             saveMediaToStorage(
                                 bitmap = bitMap,
-                                fileId = state[curPage].id,
+                                fileId = state.groupedCats[curPage].id,
                                 context = context
                             )
                         }
@@ -160,7 +160,7 @@ fun HorizontalPagerScreen(
                 onDeleteClicked = {
                     viewModel.onEvent(
                         CatListEvent.DeleteCatFromFavorite(
-                            cat = state[curPage]
+                            cat = state.groupedCats[curPage]
                         )
                     )
                 }
@@ -168,7 +168,7 @@ fun HorizontalPagerScreen(
         },
         content = {
             HorizontalPager(
-                count = state.size,
+                count = state.groupedCats.size,
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
@@ -181,7 +181,7 @@ fun HorizontalPagerScreen(
                 Box(modifier = Modifier.fillMaxSize()) {
                     SubcomposeAsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(state[page].url)
+                            .data(state.groupedCats[page].url)
                             .crossfade(true)
                             .build(),
                         contentDescription = stringResource(id = R.string.random_cat_image),

@@ -57,7 +57,7 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 
 @Composable
-fun PickerScreen(
+fun RandomCatScreen(
     viewModel: RandomCatViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current

@@ -13,16 +13,28 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,20 +51,21 @@ import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.yotfr.randomcats.R
-import com.yotfr.randomcats.base.compose_ext.header
 import com.yotfr.randomcats.domain.model.Cat
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.event.CatListEvent
+import com.yotfr.randomcats.presentation.screens.cats_list_screen.model.CatListModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GridListScreen(
     viewModel: CatListViewModel = hiltViewModel(),
     navController: NavController,
-    currentIndex:String?
+    currentIndex: String?
 ) {
 
     val context = LocalContext.current
@@ -69,92 +82,76 @@ fun GridListScreen(
     ) { isGranted ->
         hasWriteStoragePermission = isGranted
     }
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
     val lazyGridState = rememberLazyGridState()
 
-    LaunchedEffect(currentIndex){
-        currentIndex?.let { currentIndex ->
-            val cat = state.groupedCats.values.flatten()[currentIndex.toInt()]
-            val gridList = mutableListOf<Cat>()
-            state.groupedCats.forEach {
-                gridList.add(Cat("","",0L,""))
-                gridList.addAll(it.value)
-            }
-            val gridIndex = gridList.indexOfFirst {
-                it == cat
-            }
-            lazyGridState.scrollToItem(gridIndex)
-        }
-    }
 
-    LazyVerticalGrid(
-        state = lazyGridState,
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(8.dp),
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Fixed(2),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp, horizontal = 8.dp)
     ) {
-
-        state.groupedCats.forEach { entry ->
-
-            header {
-                Text(text = entry.key)
-            }
-
-            items(entry.value) { cat ->
-                GridCell(
-                    cat = cat,
-                    onDownloadClicked = {
-                        if (hasWriteStoragePermission) {
-                            coroutineScope.launch {
-                                val bitMap = getBitmapFromUrl(
-                                    url = it.url,
-                                    context = context
-                                )
-                                saveMediaToStorage(
-                                    bitmap = bitMap,
-                                    fileId = it.id,
-                                    context = context
-                                )
-                            }
-                        } else {
-                            permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                    },
-                    onShareClicked = {
+        itemsIndexed(state.groupedCats) { index,cat ->
+            GridCell(
+                cat = cat,
+                onDownloadClicked = {
+                    if (hasWriteStoragePermission) {
                         coroutineScope.launch {
                             val bitMap = getBitmapFromUrl(
                                 url = it.url,
                                 context = context
                             )
-                            val uri = getImageToShare(
+                            saveMediaToStorage(
                                 bitmap = bitMap,
-                                context = context
-                            )
-                            shareImage(
-                                uri = uri,
+                                fileId = it.id,
                                 context = context
                             )
                         }
-                    },
-                    onDeleteFromFavClicked = {
-                        viewModel.onEvent(
-                            CatListEvent.DeleteCatFromFavorite(
-                                cat = it
-                            )
-                        )
-                    },
-                    onGridClicked = {
-                        val indexToPager = state.groupedCats.values.flatten().indexOfFirst {
-                            it == cat
-                        }
-                        navController.navigate(route = "pager/$indexToPager")
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     }
-                )
-            }
+                },
+                onShareClicked = {
+                    coroutineScope.launch {
+                        val bitMap = getBitmapFromUrl(
+                            url = it.url,
+                            context = context
+                        )
+                        val uri = getImageToShare(
+                            bitmap = bitMap,
+                            context = context
+                        )
+                        shareImage(
+                            uri = uri,
+                            context = context
+                        )
+                    }
+                },
+                onDeleteFromFavClicked = {
+                    viewModel.onEvent(
+                        CatListEvent.DeleteCatFromFavorite(
+                            cat = it
+                        )
+                    )
+                },
+                onGridClicked = {
+                    viewModel.onEvent(
+                        CatListEvent.GridListItemClicked(
+                            selectedIndex = index
+                        )
+                    )
+                },
+                catContentDescription = stringResource(id = R.string.your_favorite_cat),
+                loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder),
+                downloadContentDescription = stringResource(id = R.string.save_to_gallery),
+                shareContentDescription = stringResource(id = R.string.share),
+                deleteFromFavoriteContentDescription = stringResource(id = R.string.delete_from_favorite),
+                expandActionsContentDescription = stringResource(id = R.string.more_actions)
+            )
         }
     }
 }
@@ -162,49 +159,73 @@ fun GridListScreen(
 
 @Composable
 fun GridCell(
-    cat: Cat,
-    onDownloadClicked: (cat: Cat) -> Unit,
-    onShareClicked: (cat: Cat) -> Unit,
-    onDeleteFromFavClicked: (cat: Cat) -> Unit,
-    onGridClicked: () -> Unit
+    cat: CatListModel,
+    onDownloadClicked: (cat: CatListModel) -> Unit,
+    onShareClicked: (cat: CatListModel) -> Unit,
+    onDeleteFromFavClicked: (cat: CatListModel) -> Unit,
+    onGridClicked: () -> Unit,
+    catContentDescription: String,
+    loadingPlaceholderPainter: Painter,
+    downloadContentDescription: String,
+    shareContentDescription: String,
+    deleteFromFavoriteContentDescription: String,
+    expandActionsContentDescription: String
 ) {
-    Card {
+
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    ElevatedCard {
         SubcomposeAsyncImage(
+            modifier = Modifier.fillMaxWidth(),
             model = ImageRequest.Builder(LocalContext.current)
                 .data(cat.url)
                 .crossfade(true)
                 .build(),
-            contentDescription = stringResource(id = R.string.random_cat_image),
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
-                .clickable {
-                    onGridClicked()
-                }
+            contentDescription = catContentDescription,
+            contentScale = ContentScale.FillWidth,
+            alignment = Alignment.Center
         ) {
             val painterState = painter.state
             if (painterState is AsyncImagePainter.State.Loading ||
                 painterState is AsyncImagePainter.State.Error
             ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.wrapContentSize(),
+                Image(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(64.dp)
+                        .alpha(0.5f),
+                    painter = loadingPlaceholderPainter,
+                    contentDescription = "",
+                    contentScale = ContentScale.FillWidth,
+                    alignment = Alignment.Center,
+                    colorFilter = ColorFilter.tint(
+                        color = Color.Gray
+                    )
                 )
             } else {
-                SubcomposeAsyncImageContent()
+                SubcomposeAsyncImageContent(
+                    modifier = Modifier.clickable {
+                        onGridClicked()
+                    }
+                )
             }
         }
         ActionButtons(
-            modifier = Modifier.fillMaxWidth(),
-            onDownloadClicked = {
-                onDownloadClicked(cat)
-            },
-            onShareClicked = {
-                onShareClicked(cat)
-            },
-            onDeleteFromFavClicked = {
-                onDeleteFromFavClicked(cat)
+            onDownloadClicked = { onDownloadClicked(cat) },
+            onShareClicked = { onShareClicked(cat) },
+            onDeleteFromFavClicked = { onDeleteFromFavClicked(cat) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            downloadContentDescription = downloadContentDescription,
+            shareContentDescription = shareContentDescription,
+            deleteFromFavoriteContentDescription = deleteFromFavoriteContentDescription,
+            expandActionsContentDescription = expandActionsContentDescription,
+            isExpanded = isExpanded,
+            onExpandClicked = {
+                isExpanded = !isExpanded
             }
         )
     }
@@ -212,54 +233,74 @@ fun GridCell(
 
 @Composable
 fun ActionButtons(
+    modifier: Modifier,
     onDownloadClicked: () -> Unit,
+    downloadContentDescription: String,
     onShareClicked: () -> Unit,
+    shareContentDescription: String,
     onDeleteFromFavClicked: () -> Unit,
-    modifier: Modifier
+    deleteFromFavoriteContentDescription: String,
+    expandActionsContentDescription: String,
+    isExpanded: Boolean,
+    onExpandClicked: () -> Unit
 ) {
-
-    var dropDownMenuExpanded by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.End
+    Column(
+        modifier = modifier
+            .animateContentSize()
     ) {
-        IconButton(onClick = { onShareClicked() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_share),
-                contentDescription = stringResource(id = R.string.share)
-            )
-        }
-        IconButton(onClick = { onDownloadClicked() }) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_download),
-                contentDescription = stringResource(id = R.string.save_to_gallery)
-            )
-        }
-        Box {
-            IconButton(onClick = { dropDownMenuExpanded = true }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_more_vertical),
-                    contentDescription = stringResource(id = R.string.more_options)
-                )
-            }
-            DropdownMenu(
-                expanded = dropDownMenuExpanded,
-                onDismissRequest = { dropDownMenuExpanded = false },
+        if (isExpanded) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(text = stringResource(id = R.string.delete_from_favorite))
-                    },
+                IconButton(
+                    onClick = {
+                        onDownloadClicked()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Download,
+                        contentDescription = downloadContentDescription
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        onShareClicked()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Share,
+                        contentDescription = shareContentDescription
+                    )
+                }
+                IconButton(
                     onClick = {
                         onDeleteFromFavClicked()
-                        dropDownMenuExpanded = false
                     }
-                )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = deleteFromFavoriteContentDescription
+                    )
+                }
             }
+        }
+        IconButton(
+            onClick = {
+                onExpandClicked()
+            },
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Icon(
+                imageVector = if (isExpanded) Icons.Filled.ExpandLess
+                else Icons.Filled.ExpandMore,
+                contentDescription = expandActionsContentDescription
+            )
         }
     }
 }
+
 
 private fun saveMediaToStorage(bitmap: Bitmap, fileId: String, context: Context) {
     var fos: OutputStream? = null

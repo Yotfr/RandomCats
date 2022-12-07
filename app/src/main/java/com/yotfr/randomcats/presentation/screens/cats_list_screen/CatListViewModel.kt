@@ -1,19 +1,21 @@
 package com.yotfr.randomcats.presentation.screens.cats_list_screen
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Cat
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.cats.UseCases
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.event.CatListEvent
+import com.yotfr.randomcats.presentation.screens.cats_list_screen.mapper.CatListMapper
+import com.yotfr.randomcats.presentation.screens.cats_list_screen.model.CatListModel
 import com.yotfr.randomcats.presentation.screens.cats_list_screen.model.CatListState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,8 +23,10 @@ class CatListViewModel @Inject constructor(
     private val useCases: UseCases
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(CatListState())
-    val state: State<CatListState> = _state
+    private val catListMapper = CatListMapper()
+
+    private val _state = MutableStateFlow(CatListState())
+    val state = _state.asStateFlow()
 
     init {
         getCats()
@@ -31,12 +35,27 @@ class CatListViewModel @Inject constructor(
     fun onEvent(event: CatListEvent){
         when(event){
             is CatListEvent.DeleteCatFromFavorite -> {
-                viewModelScope.launch {
-                    useCases.deleteCatFromRemoteDb(
-                        cat = event.cat
+                deleteCatFromFavorite(
+                    cat = event.cat
+                )
+            }
+            is CatListEvent.GridListItemClicked -> {
+                _state.update {
+                    it.copy(
+                        selectedIndex = event.selectedIndex
                     )
                 }
             }
+        }
+    }
+
+    private fun deleteCatFromFavorite(cat: CatListModel) {
+        viewModelScope.launch {
+            useCases.deleteCatFromRemoteDb(
+                cat = catListMapper.toDomain(
+                    uiModel = cat
+                )
+            )
         }
     }
 
@@ -45,12 +64,13 @@ class CatListViewModel @Inject constructor(
             useCases.getCatsFromRemoteDb().collectLatest { result ->
                 when (result) {
                     is Response.Success -> {
-                        //TODO:refactor fun groupCatsByDate add today yesterday
-                        _state.value = CatListState(
-                            groupedCats = groupCatsByDate(
-                                result.data ?: emptyList()
+                        _state.update {
+                            it.copy(
+                                groupedCats = catListMapper.fromDomainList(
+                                    initialList =  result.data
+                                )
                             )
-                        )
+                        }
                     }
                     else -> {
                         //TODO: exception handling
@@ -60,9 +80,5 @@ class CatListViewModel @Inject constructor(
         }
     }
 
-    private suspend fun groupCatsByDate(list: List<Cat>):Map<String, List<Cat>> =
-        withContext(Dispatchers.Default){
-            list.groupBy { it.createdDateString.substringBeforeLast(", ") }
-        }
 
 }
