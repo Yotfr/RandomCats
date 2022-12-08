@@ -74,6 +74,7 @@ class RandomCatViewModel @Inject constructor(
                 )
             ).collectLatest { result ->
                 when(result) {
+
                     is Response.Loading -> {
                         _state.update {
                             it.copy(

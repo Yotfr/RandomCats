@@ -16,20 +16,24 @@ class UseCasesModule {
 
     @Provides
     fun provideUseCases(
-       catsRepository: CatsRepository
+       catsRepository: CatsRepository,
+       userRepository: UserRepository
     ): UseCases {
         return UseCases(
             getRandomCat = GetRandomCatUseCase(
                 catsRepository = catsRepository
             ),
             uploadCatToRemoteDbUseCase = UploadCatToRemoteDbUseCase(
-                catsRepository = catsRepository
+                catsRepository = catsRepository,
+                userRepository = userRepository
             ),
             getCatsFromRemoteDb = GetCatsFromRemoteDb(
-                catsRepository = catsRepository
+                catsRepository = catsRepository,
+                userRepository = userRepository
             ),
             deleteCatFromRemoteDb = DeleteCatFromRemoteDb(
-                catsRepository = catsRepository
+                catsRepository = catsRepository,
+                userRepository = userRepository
             )
         )
     }

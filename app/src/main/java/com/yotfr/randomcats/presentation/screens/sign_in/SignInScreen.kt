@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -24,6 +25,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.sign_in.event.SignInEvent
 import com.yotfr.randomcats.presentation.screens.sign_in.event.SignInScreenEvent
@@ -44,18 +47,22 @@ fun SignInScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
     //collect uiEvents
     LaunchedEffect(key1 = Unit) {
-        viewModel.event.collect {
-            when (it) {
-                SignInScreenEvent.NavigateHome -> {
-                    toMain()
-                }
-                SignInScreenEvent.ShowInvalidCredentialsError -> {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = context.resources.getString(R.string.invalid_credentials)
-                        )
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.event.collect {
+                when (it) {
+                    SignInScreenEvent.NavigateHome -> {
+                        toMain()
+                    }
+                    SignInScreenEvent.ShowInvalidCredentialsError -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.resources.getString(R.string.invalid_credentials)
+                            )
+                        }
                     }
                 }
             }

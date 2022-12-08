@@ -15,9 +15,7 @@ import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.repository.CatsRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -33,12 +31,12 @@ class CatsRepositoryImpl @Inject constructor(
 
     private val catsCollectionReference = Firebase.firestore.collection("cats")
 
-    override suspend fun getFromApi(): Flow<Response<Cat, String>> = flow {
+    override suspend fun getFromApi(): Flow<Response<Cat, String>> = channelFlow {
         try {
-            emit(Response.Loading)
+            send(Response.Loading)
             val catsResponse = catsApi.getCat()
             val cat = catMapper.toDomain(catsResponse)
-            emit(
+            send(
                 Response.Success(
                     data = cat
                 )
@@ -46,14 +44,14 @@ class CatsRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             when(e) {
                 is IOException -> {
-                    emit(
+                    send(
                         Response.Exception(
                             cause = Cause.BadConnectionException
                         )
                     )
                 }
                 else -> {
-                    emit(
+                    send(
                         Response.Exception(
                             cause = Cause.UnknownException(
                                 message = e.message.toString()
@@ -66,25 +64,27 @@ class CatsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadToRemoteDb(cat: Cat): Flow<Response<Unit, String>> = flow{
+    override suspend fun uploadToRemoteDb(cat: Cat, userId: String): Flow<Response<Unit, String>> = channelFlow{
         withContext(Dispatchers.IO) {
             try {
-                emit(Response.Loading)
+                send(Response.Loading)
                 catsCollectionReference.add(
                     catFirebaseMapper.fromDomain(
-                        domainModel = cat
+                        domainModel = cat,
+                        userId = userId
                     )
                 ).await()
-                emit(Response.Success(Unit))
+                send(Response.Success(Unit))
             } catch (e: Exception) {
                 Log.e("uploadError", "error -> ${e.message}")
             }
         }
     }
 
-    override suspend fun getFromRemoteDb(): Flow<Response<List<Cat>,String>> =
+    override suspend fun getFromRemoteDb(userId: String): Flow<Response<List<Cat>, String>> =
         withContext(Dispatchers.IO) {
             catsCollectionReference
+                .whereEqualTo("userId",userId)
                 .orderBy("created", Query.Direction.DESCENDING)
                 .snapshotFlow()
                 .map { querySnapshot ->
@@ -102,9 +102,10 @@ class CatsRepositoryImpl @Inject constructor(
                 }
         }
 
-    override suspend fun deleteFromRemoteDb(cat: Cat) = withContext(Dispatchers.IO) {
+    override suspend fun deleteFromRemoteDb(cat: Cat, userId: String) = withContext(Dispatchers.IO) {
         val firebaseCat = catFirebaseMapper.fromDomain(
-            domainModel = cat
+            domainModel = cat,
+            userId = userId
         )
         val catQuery = catsCollectionReference
             .whereEqualTo("id", firebaseCat.id)

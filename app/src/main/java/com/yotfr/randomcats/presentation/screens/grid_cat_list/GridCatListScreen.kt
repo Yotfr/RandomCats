@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.screens.cats_list_screen
+package com.yotfr.randomcats.presentation.screens.grid_cat_list
 
 import android.Manifest
 import android.content.ContentValues
@@ -18,13 +18,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -37,13 +34,15 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
@@ -51,9 +50,10 @@ import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.yotfr.randomcats.R
-import com.yotfr.randomcats.domain.model.Cat
-import com.yotfr.randomcats.presentation.screens.cats_list_screen.event.CatListEvent
-import com.yotfr.randomcats.presentation.screens.cats_list_screen.model.CatListModel
+import com.yotfr.randomcats.presentation.screens.grid_cat_list.event.GridCatListEvent
+import com.yotfr.randomcats.presentation.screens.grid_cat_list.event.GridCatListScreenEvent
+import com.yotfr.randomcats.presentation.screens.grid_cat_list.model.GridCatListModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -63,9 +63,9 @@ import java.io.OutputStream
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GridListScreen(
-    viewModel: CatListViewModel = hiltViewModel(),
-    navController: NavController,
-    currentIndex: String?
+    viewModel: GridCatListViewModel = hiltViewModel(),
+    navigateToImageDetails:(selectedIndex:Int) -> Unit,
+    selectedIndex: Int
 ) {
 
     val context = LocalContext.current
@@ -83,19 +83,46 @@ fun GridListScreen(
         hasWriteStoragePermission = isGranted
     }
     val state by viewModel.state.collectAsState()
+    val event = viewModel.event
 
     val coroutineScope = rememberCoroutineScope()
 
-    val lazyGridState = rememberLazyGridState()
+    val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+
+    LaunchedEffect(key1 = true){
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            event.collectLatest { uiEvent ->
+                when(uiEvent) {
+                    is GridCatListScreenEvent.NavigateToPagerScreenCat -> {
+                        navigateToImageDetails(
+                            uiEvent.selectedIndex
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = selectedIndex) {
+        coroutineScope.launch {
+            lazyStaggeredGridState.scrollToItem(
+                selectedIndex
+            )
+        }
+    }
 
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp, horizontal = 8.dp)
+        contentPadding = PaddingValues(vertical = 16.dp, horizontal = 8.dp),
+        state = lazyStaggeredGridState
     ) {
-        itemsIndexed(state.groupedCats) { index,cat ->
+        itemsIndexed(state.cats) { index, cat ->
             GridCell(
                 cat = cat,
                 onDownloadClicked = {
@@ -133,14 +160,14 @@ fun GridListScreen(
                 },
                 onDeleteFromFavClicked = {
                     viewModel.onEvent(
-                        CatListEvent.DeleteCatFromFavorite(
+                        GridCatListEvent.DeleteCatFromFavorite(
                             cat = it
                         )
                     )
                 },
                 onGridClicked = {
                     viewModel.onEvent(
-                        CatListEvent.GridListItemClicked(
+                        GridCatListEvent.GridCatListItemClicked(
                             selectedIndex = index
                         )
                     )
@@ -159,10 +186,10 @@ fun GridListScreen(
 
 @Composable
 fun GridCell(
-    cat: CatListModel,
-    onDownloadClicked: (cat: CatListModel) -> Unit,
-    onShareClicked: (cat: CatListModel) -> Unit,
-    onDeleteFromFavClicked: (cat: CatListModel) -> Unit,
+    cat: GridCatListModel,
+    onDownloadClicked: (cat: GridCatListModel) -> Unit,
+    onShareClicked: (cat: GridCatListModel) -> Unit,
+    onDeleteFromFavClicked: (cat: GridCatListModel) -> Unit,
     onGridClicked: () -> Unit,
     catContentDescription: String,
     loadingPlaceholderPainter: Painter,

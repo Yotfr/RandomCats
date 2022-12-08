@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.screens.cats_list_screen
+package com.yotfr.randomcats.presentation.screens.pager_cat_list
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -12,12 +12,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,14 +27,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
@@ -45,7 +52,10 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.yotfr.randomcats.R
-import com.yotfr.randomcats.presentation.screens.cats_list_screen.event.CatListEvent
+import com.yotfr.randomcats.presentation.screens.grid_cat_list.event.GridCatListEvent
+import com.yotfr.randomcats.presentation.screens.grid_cat_list.GridCatListViewModel
+import com.yotfr.randomcats.presentation.screens.pager_cat_list.event.PagerCatListEvent
+import com.yotfr.randomcats.presentation.screens.pager_cat_list.event.PagerCatListScreenEvent
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -55,9 +65,9 @@ import java.io.OutputStream
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HorizontalPagerScreen(
-    viewModel: CatListViewModel = hiltViewModel(),
-    onBackPressed: (currentIndex: String) -> Unit,
-    pageFromGrid: String?
+    viewModel: PagerCatListViewModel = hiltViewModel(),
+    onBackPressed: (selectedIndex:Int) -> Unit,
+    selectedIndex:Int
 ) {
 
     val context = LocalContext.current
@@ -76,9 +86,16 @@ fun HorizontalPagerScreen(
     }
 
     val state by viewModel.state.collectAsState()
+
+    val event = viewModel.event
+
     val pagerState = rememberPagerState(
-        initialPage = pageFromGrid?.toInt() ?: 0
+        initialPage = selectedIndex
     )
+
+    var curPage by remember {
+        mutableStateOf(selectedIndex)
+    }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -91,23 +108,34 @@ fun HorizontalPagerScreen(
     }
 
     var barsVisibility by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
 
-    var curPage by remember {
-        mutableStateOf(0)
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    LaunchedEffect(key1 = Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            event.collect{ uiEvent ->
+                when(uiEvent) {
+                    is PagerCatListScreenEvent.NavigateToGridCatList -> {
+                        onBackPressed(uiEvent.selectedIndex)
+                    }
+                }
+            }
+        }
     }
 
 
     LaunchedEffect(pagerState, state) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
-            if (state.groupedCats.isNotEmpty()) {
-                date = state.groupedCats[page].createdDateString.substringBeforeLast(" ")
-                time = state.groupedCats[page].createdDateString.substringAfterLast(" ")
+            if (state.cats.isNotEmpty()) {
+                date = state.cats[page].createdDateString.substringBeforeLast(" ")
+                time = state.cats[page].createdDateString.substringAfterLast(" ")
                 curPage = page
             }
         }
     }
+
     Scaffold(
         topBar = {
             TopBar(
@@ -115,8 +143,10 @@ fun HorizontalPagerScreen(
                 date = date,
                 time = time,
                 onBackPressed = {
-                    onBackPressed(
-                        curPage.toString()
+                    viewModel.onEvent(
+                        PagerCatListEvent.BackArrowPressed(
+                            selectedIndex = curPage
+                        )
                     )
                 }
             )
@@ -127,7 +157,7 @@ fun HorizontalPagerScreen(
                 onShareClicked = {
                     coroutineScope.launch {
                         val bitMap = getBitmapFromUrl(
-                            url = state.groupedCats[curPage].url,
+                            url = state.cats[curPage].url,
                             context = context
                         )
                         val uri = getImageToShare(
@@ -144,12 +174,12 @@ fun HorizontalPagerScreen(
                     if (hasWriteStoragePermission) {
                         coroutineScope.launch {
                             val bitMap = getBitmapFromUrl(
-                                url = state.groupedCats[curPage].url,
+                                url = state.cats[curPage].url,
                                 context = context
                             )
                             saveMediaToStorage(
                                 bitmap = bitMap,
-                                fileId = state.groupedCats[curPage].id,
+                                fileId = state.cats[curPage].id,
                                 context = context
                             )
                         }
@@ -159,8 +189,8 @@ fun HorizontalPagerScreen(
                 },
                 onDeleteClicked = {
                     viewModel.onEvent(
-                        CatListEvent.DeleteCatFromFavorite(
-                            cat = state.groupedCats[curPage]
+                        PagerCatListEvent.DeleteCatFromFavorite(
+                            cat = state.cats[curPage]
                         )
                     )
                 }
@@ -168,7 +198,7 @@ fun HorizontalPagerScreen(
         },
         content = {
             HorizontalPager(
-                count = state.groupedCats.size,
+                count = state.cats.size,
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
@@ -177,36 +207,56 @@ fun HorizontalPagerScreen(
                         barsVisibility = !barsVisibility
                     }
             ) { page ->
-                Log.d("TEST", "page $page")
-                Box(modifier = Modifier.fillMaxSize()) {
-                    SubcomposeAsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(state.groupedCats[page].url)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = stringResource(id = R.string.random_cat_image),
-                        contentScale = ContentScale.FillWidth,
-                        alignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center)
-                    ) {
-                        val painterState = painter.state
-                        if (painterState is AsyncImagePainter.State.Loading ||
-                            painterState is AsyncImagePainter.State.Error
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.wrapContentSize(),
-                            )
-                        } else {
-                            SubcomposeAsyncImageContent()
-                        }
-                    }
-                }
+                Page (
+                    modifier = Modifier.fillMaxSize(),
+                    catUrl = state.cats[page].url,
+                    catContentDescription = stringResource(id = R.string.random_cat_image),
+                    loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder)
+                )
             }
         },
     )
 
+}
+
+@Composable
+fun Page(
+    modifier: Modifier,
+    catUrl: String,
+    catContentDescription: String,
+    loadingPlaceholderPainter: Painter
+) {
+        SubcomposeAsyncImage(
+            modifier = modifier,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(catUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = catContentDescription,
+            contentScale = ContentScale.FillWidth,
+            alignment = Alignment.Center
+        ) {
+            val painterState = painter.state
+            if (painterState is AsyncImagePainter.State.Loading ||
+                painterState is AsyncImagePainter.State.Error
+            ) {
+                Image(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(64.dp)
+                        .alpha(0.5f),
+                    painter = loadingPlaceholderPainter,
+                    contentDescription = "",
+                    contentScale = ContentScale.FillWidth,
+                    alignment = Alignment.Center,
+                    colorFilter = ColorFilter.tint(
+                        color = Color.Gray
+                    )
+                )
+            } else {
+                SubcomposeAsyncImageContent()
+            }
+        }
 }
 
 @Composable

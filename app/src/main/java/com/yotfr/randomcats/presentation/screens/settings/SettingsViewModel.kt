@@ -1,10 +1,10 @@
-package com.yotfr.randomcats.presentation.screens.profile
+package com.yotfr.randomcats.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.use_case.users.UserUseCases
-import com.yotfr.randomcats.presentation.screens.profile.event.ProfileEvent
-import com.yotfr.randomcats.presentation.screens.profile.event.ProfileScreenEvent
+import com.yotfr.randomcats.presentation.screens.settings.event.SettingsEvent
+import com.yotfr.randomcats.presentation.screens.settings.event.SettingsScreenEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -12,16 +12,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
+class SettingsViewModel @Inject constructor(
     private val userUseCases: UserUseCases
 ):ViewModel(){
 
-    private val _event = Channel<ProfileScreenEvent>()
+    private val _event = Channel<SettingsScreenEvent>()
     val event = _event.receiveAsFlow()
 
-    fun onEvent(event:ProfileEvent) {
+    fun onEvent(event:SettingsEvent) {
         when(event) {
-            ProfileEvent.SignOut -> {
+            SettingsEvent.SignOut -> {
                 signOut()
             }
         }
@@ -30,7 +30,7 @@ class ProfileViewModel @Inject constructor(
     private fun signOut(){
         viewModelScope.launch {
             userUseCases.signOutUseCase
-            _event.send(ProfileScreenEvent.NavigateToAuth)
+            _event.send(SettingsScreenEvent.NavigateToAuth)
         }
     }
 }

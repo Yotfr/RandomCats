@@ -13,11 +13,12 @@ class CatFirebaseMapper {
         )
     }
 
-    fun fromDomain ( domainModel:Cat ):CatFirebase{
+    fun fromDomain ( domainModel:Cat, userId:String ):CatFirebase{
         return CatFirebase(
             id = domainModel.id,
             url = domainModel.url,
-            created = domainModel.created
+            created = domainModel.created,
+            userId = userId
         )
     }
 

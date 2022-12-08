@@ -92,7 +92,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun isSignedIn(): Boolean = auth.currentUser != null
 
-    override fun signOut(): Flow<Response<Unit,String>> = flow {
+    override fun signOut(): Flow<Response<Unit, String>> = flow {
         withContext(Dispatchers.IO) {
             try {
                 emit(Response.Loading)
@@ -111,4 +111,8 @@ class UserRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override fun getCurrentUserUid(): String = auth.currentUser?.uid ?: throw
+            IllegalArgumentException("User is not signed in")
+
 }

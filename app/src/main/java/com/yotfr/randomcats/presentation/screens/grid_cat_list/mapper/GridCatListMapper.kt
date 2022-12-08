@@ -1,13 +1,13 @@
-package com.yotfr.randomcats.presentation.screens.cats_list_screen.mapper
+package com.yotfr.randomcats.presentation.screens.grid_cat_list.mapper
 
-import com.yotfr.randomcats.presentation.screens.cats_list_screen.model.CatListModel
+import com.yotfr.randomcats.presentation.screens.grid_cat_list.model.GridCatListModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CatListMapper {
+class GridCatListMapper {
 
-    fun fromDomain(domainModel: com.yotfr.randomcats.domain.model.Cat): CatListModel {
-        return CatListModel(
+    fun fromDomain(domainModel: com.yotfr.randomcats.domain.model.Cat): GridCatListModel {
+        return GridCatListModel(
             id = domainModel.id,
             url = domainModel.url,
             created = domainModel.created,
@@ -17,7 +17,7 @@ class CatListMapper {
         )
     }
 
-    fun toDomain(uiModel:CatListModel): com.yotfr.randomcats.domain.model.Cat {
+    fun toDomain(uiModel: GridCatListModel): com.yotfr.randomcats.domain.model.Cat {
         return com.yotfr.randomcats.domain.model.Cat(
             id = uiModel.id,
             url = uiModel.url,
@@ -25,7 +25,7 @@ class CatListMapper {
         )
     }
 
-    fun fromDomainList(initialList:List<com.yotfr.randomcats.domain.model.Cat>):List<CatListModel> {
+    fun fromDomainList(initialList:List<com.yotfr.randomcats.domain.model.Cat>):List<GridCatListModel> {
         return initialList.map { fromDomain(it) }
     }
 }

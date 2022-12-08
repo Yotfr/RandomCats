@@ -1,15 +1,15 @@
-package com.yotfr.randomcats.presentation.screens.profile
+package com.yotfr.randomcats.presentation.screens.settings
 
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.yotfr.randomcats.presentation.screens.profile.event.ProfileEvent
-import com.yotfr.randomcats.presentation.screens.profile.event.ProfileScreenEvent
+import com.yotfr.randomcats.presentation.screens.settings.event.SettingsEvent
+import com.yotfr.randomcats.presentation.screens.settings.event.SettingsScreenEvent
 
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel = hiltViewModel(),
+    viewModel: SettingsViewModel = hiltViewModel(),
     navigateToAuth:() -> Unit
 ) {
 
@@ -18,14 +18,14 @@ fun ProfileScreen(
     LaunchedEffect(key1 = event) {
         event.collect{
             when(it) {
-                ProfileScreenEvent.NavigateToAuth -> {
+                SettingsScreenEvent.NavigateToAuth -> {
                     navigateToAuth()
                 }
             }
         }
     }
 
-    Button(onClick = {viewModel.onEvent(ProfileEvent.SignOut)}) {
+    Button(onClick = {viewModel.onEvent(SettingsEvent.SignOut)}) {
 
     }
 

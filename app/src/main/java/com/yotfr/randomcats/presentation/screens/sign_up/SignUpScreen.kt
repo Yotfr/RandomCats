@@ -15,12 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.sign_up.event.SignUpEvent
 import com.yotfr.randomcats.presentation.screens.sign_up.event.SignUpScreenEvent
@@ -40,23 +43,27 @@ fun SignUpScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
     LaunchedEffect(key1 = Unit) {
-        viewModel.event.collect {
-            when (it) {
-                SignUpScreenEvent.ShowUserAlreadyExistsSnackbar -> {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = context.resources.getString(R.string.user_already_exists)
-                        )
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.event.collect {
+                when (it) {
+                    SignUpScreenEvent.ShowUserAlreadyExistsSnackbar -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.resources.getString(R.string.user_already_exists)
+                            )
+                        }
                     }
-                }
-                SignUpScreenEvent.UserSuccessfullyCreated -> {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = context.resources.getString(R.string.account_successfully_created)
-                        )
+                    SignUpScreenEvent.UserSuccessfullyCreated -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.resources.getString(R.string.account_successfully_created)
+                            )
+                        }
+                        backToSignIn()
                     }
-                    backToSignIn()
                 }
             }
         }
