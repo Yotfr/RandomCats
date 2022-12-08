@@ -5,6 +5,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.yotfr.randomcats.domain.model.Theme
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -73,18 +78,62 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun RandomCatsTheme(
-    useDarkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable() () -> Unit
+    theme: Theme,
+    content: @Composable () -> Unit
 ) {
-    val colors = if (!useDarkTheme) {
-        LightColors
-    } else {
-        DarkColors
+
+    val colors = when(theme) {
+        Theme.LIGHT -> {
+            LightColors
+        }
+        Theme.DARK -> {
+            DarkColors
+        }
+        Theme.SYSTEM_DEFAULT -> {
+            if (isSystemInDarkTheme()) {
+                DarkColors
+            }else {
+                LightColors
+            }
+        }
     }
+
+    ConfigureSystemBars(theme = theme)
 
     MaterialTheme(
         colorScheme = colors,
         typography = Typography,
         content = content
     )
+
+
 }
+
+@Composable
+fun ConfigureSystemBars(
+    theme: Theme
+) {
+    val systemUiController = rememberSystemUiController()
+    val isSystemDarkTheme = isSystemInDarkTheme()
+
+    val useDarkIcons = when(theme) {
+        Theme.SYSTEM_DEFAULT -> {
+            !isSystemDarkTheme
+        }
+        Theme.DARK -> {
+            false
+        }
+        Theme.LIGHT -> {
+            true
+        }
+    }
+
+    DisposableEffect(systemUiController, isSystemDarkTheme) {
+        systemUiController.setSystemBarsColor(
+            color = Color.Transparent,
+            darkIcons = useDarkIcons
+        )
+        onDispose {  }
+    }
+}
+

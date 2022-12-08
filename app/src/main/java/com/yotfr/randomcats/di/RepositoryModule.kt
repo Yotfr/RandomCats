@@ -1,8 +1,10 @@
 package com.yotfr.randomcats.di
 
 import com.yotfr.randomcats.data.repository.CatsRepositoryImpl
+import com.yotfr.randomcats.data.repository.UserPreferencesRepositoryImpl
 import com.yotfr.randomcats.data.repository.UserRepositoryImpl
 import com.yotfr.randomcats.domain.repository.CatsRepository
+import com.yotfr.randomcats.domain.repository.UserPreferencesRepository
 import com.yotfr.randomcats.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -21,5 +23,11 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl):UserRepository
+
+    @Binds
+    @Singleton
+    fun bindUserPreferencesRepository(
+        userPreferencesRepositoryImpl: UserPreferencesRepositoryImpl
+    ):UserPreferencesRepository
 
 }

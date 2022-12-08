@@ -24,13 +24,23 @@ class SettingsViewModel @Inject constructor(
             SettingsEvent.SignOut -> {
                 signOut()
             }
+            SettingsEvent.ThemePressed -> {
+                navigateToThemeScreen()
+            }
         }
     }
 
     private fun signOut(){
+        sendUiEvent(SettingsScreenEvent.NavigateToAuth)
+    }
+
+    private fun navigateToThemeScreen(){
+       sendUiEvent(SettingsScreenEvent.NavigateToThemeScreen)
+    }
+
+    private fun sendUiEvent(uiEvent:SettingsScreenEvent){
         viewModelScope.launch {
-            userUseCases.signOutUseCase
-            _event.send(SettingsScreenEvent.NavigateToAuth)
+            _event.send(uiEvent)
         }
     }
 }

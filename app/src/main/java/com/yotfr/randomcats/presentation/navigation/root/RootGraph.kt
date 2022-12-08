@@ -5,4 +5,5 @@ object RootGraph {
     const val AUTH = "auth_graph"
     const val HOME = "home_graph"
     const val FAVORITE = "favorite_graph"
+    const val SETTINGS = "settings_graph"
 }
