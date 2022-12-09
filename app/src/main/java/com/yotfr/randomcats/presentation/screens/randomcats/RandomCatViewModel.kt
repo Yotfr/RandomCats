@@ -1,12 +1,12 @@
-package com.yotfr.randomcats.presentation.screens.randomcatscreen
+package com.yotfr.randomcats.presentation.screens.randomcats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.cats.UseCases
-import com.yotfr.randomcats.presentation.screens.randomcatscreen.event.RandomCatEvent
-import com.yotfr.randomcats.presentation.screens.randomcatscreen.model.PeekingCatsLocations
-import com.yotfr.randomcats.presentation.screens.randomcatscreen.model.RandomCatState
+import com.yotfr.randomcats.presentation.screens.randomcats.event.RandomCatEvent
+import com.yotfr.randomcats.presentation.screens.randomcats.model.PeekingCatsLocations
+import com.yotfr.randomcats.presentation.screens.randomcats.model.RandomCatState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.screens.randomcatscreen.event
+package com.yotfr.randomcats.presentation.screens.randomcats.event
 
 sealed interface RandomCatEvent{
     object FavCat:RandomCatEvent

@@ -99,7 +99,8 @@ fun TopBar(
                 IconButton(onClick = { onSettingsClicked() }) {
                     Icon(
                         imageVector = Icons.Filled.Settings,
-                        contentDescription = stringResource(id = R.string.settings)
+                        contentDescription = stringResource(id = R.string.settings),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }

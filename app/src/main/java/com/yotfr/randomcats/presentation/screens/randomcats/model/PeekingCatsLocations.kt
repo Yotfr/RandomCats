@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.screens.randomcatscreen.model
+package com.yotfr.randomcats.presentation.screens.randomcats.model
 
 enum class PeekingCatsLocations {
     TOP_LEFT,

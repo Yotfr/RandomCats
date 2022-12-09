@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.screens.randomcatscreen
+package com.yotfr.randomcats.presentation.screens.randomcats
 
 import android.Manifest
 import android.content.ContentValues
@@ -49,8 +49,8 @@ import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.yotfr.randomcats.R
-import com.yotfr.randomcats.presentation.screens.randomcatscreen.event.RandomCatEvent
-import com.yotfr.randomcats.presentation.screens.randomcatscreen.model.PeekingCatsLocations
+import com.yotfr.randomcats.presentation.screens.randomcats.event.RandomCatEvent
+import com.yotfr.randomcats.presentation.screens.randomcats.model.PeekingCatsLocations
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -82,7 +82,7 @@ fun RandomCatScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(
-                top = 16.dp,
+                top = 0.dp,
                 start = 32.dp,
                 end = 32.dp,
                 bottom = 32.dp
@@ -192,14 +192,13 @@ fun RandomCatScreen(
     }
 }
 
-
 @Composable
 fun CatCard(
     modifier: Modifier,
     catUrl: String,
     catContentDescription: String,
     isLoading: Boolean,
-    loadingPlaceholderPainter:Painter
+    loadingPlaceholderPainter: Painter
 ) {
     ElevatedCard(
         modifier = modifier
@@ -218,7 +217,7 @@ fun CatCard(
             if (isLoading || painterState is AsyncImagePainter.State.Loading ||
                 painterState is AsyncImagePainter.State.Error
             ) {
-                Image (
+                Image(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(64.dp)
@@ -237,7 +236,6 @@ fun CatCard(
         }
     }
 }
-
 
 @Composable
 fun CatPeekTopRow(
@@ -475,7 +473,6 @@ fun FlipButtonRow(
     }
 }
 
-
 private fun saveMediaToStorage(bitmap: Bitmap, fileId: String, context: Context) {
     var fos: OutputStream? = null
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -507,13 +504,11 @@ private fun saveMediaToStorage(bitmap: Bitmap, fileId: String, context: Context)
 }
 
 private fun shareImage(uri: Uri, context: Context) {
-
     val intent = Intent(Intent.ACTION_SEND)
     intent.putExtra(Intent.EXTRA_STREAM, uri)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
     intent.type = "image/*"
     context.startActivity(Intent.createChooser(intent, "Share image"))
-
 }
 
 private fun getImageToShare(bitmap: Bitmap, context: Context): Uri {
@@ -529,7 +524,6 @@ private fun getImageToShare(bitmap: Bitmap, context: Context): Uri {
         fileOutputStream.close()
 
         uri = FileProvider.getUriForFile(context, "com.yotfr.randomcats", file)
-
     } catch (e: java.lang.Exception) {
         e.printStackTrace()
     }
@@ -572,7 +566,7 @@ fun FlipButton(
     backIcon: ImageVector,
     frontIcon: ImageVector,
     backIconDescription: String,
-    frontIconDescription: String,
+    frontIconDescription: String
 ) {
     val rotation = animateFloatAsState(
         targetValue = buttonFace.angle,
@@ -584,8 +578,8 @@ fun FlipButton(
     FilledIconButton(
         onClick = { onClick(buttonFace) },
         modifier = modifier
-            .height(72.dp)
-            .width(72.dp)
+            .height(64.dp)
+            .width(64.dp)
             .graphicsLayer {
                 if (axis == RotationAxis.AxisX) {
                     rotationX = rotation.value
@@ -616,4 +610,3 @@ fun FlipButton(
         }
     }
 }
-
