@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -50,10 +51,9 @@ fun HomeScreen() {
 
 @Composable
 fun BottomBar(navController: NavHostController) {
-
     val screens = listOf(
         BottomNavScreens.Home,
-        BottomNavScreens.Favorite,
+        BottomNavScreens.Favorite
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -61,7 +61,9 @@ fun BottomBar(navController: NavHostController) {
 
     val bottomBarDestination = screens.any { it.screen_route == currentDestination?.route }
     if (bottomBarDestination) {
-        NavigationBar {
+        NavigationBar(
+            tonalElevation = 1.dp
+        ) {
             screens.forEach { screen ->
                 AddItem(
                     screen = screen,
@@ -71,7 +73,6 @@ fun BottomBar(navController: NavHostController) {
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,7 +83,7 @@ fun TopBar(
 ) {
     val screens = listOf(
         BottomNavScreens.Home,
-        BottomNavScreens.Favorite,
+        BottomNavScreens.Favorite
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -113,6 +114,19 @@ fun RowScope.AddItem(
     navController: NavHostController
 ) {
     NavigationBarItem(
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.primary,
+            selectedTextColor = MaterialTheme.colorScheme.primary,
+            indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                elevation = 1.dp
+            ),
+            unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(
+                alpha = 0.5f
+            ),
+            unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(
+                alpha = 0.5f
+            )
+        ),
         label = {
             Text(text = screen.title)
         },
