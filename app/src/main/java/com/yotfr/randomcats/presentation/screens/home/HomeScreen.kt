@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
@@ -26,14 +27,18 @@ import soup.compose.material.motion.navigation.rememberMaterialMotionNavControll
 fun HomeScreen() {
     val navController = rememberMaterialMotionNavController()
 
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = { BottomBar(navController = navController) },
         topBar = {
             TopBar(
                 navController = navController,
                 onSettingsClicked = {
                     navController.navigate(SettingsScreenRoute.SettingsRoute.screen_route)
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         }
     ) {
@@ -79,7 +84,8 @@ fun BottomBar(navController: NavHostController) {
 @Composable
 fun TopBar(
     navController: NavHostController,
-    onSettingsClicked: () -> Unit
+    onSettingsClicked: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     val screens = listOf(
         BottomNavScreens.Home,
@@ -92,8 +98,17 @@ fun TopBar(
     val bottomBarDestination = screens.any { it.screen_route == currentDestination?.route }
 
     if (bottomBarDestination) {
-        TopAppBar(
-            title = {},
+        CenterAlignedTopAppBar(
+            title = {
+                when (currentDestination?.route) {
+                    BottomNavScreens.Home.screen_route -> {
+                        Text(text = BottomNavScreens.Home.title)
+                    }
+                    BottomNavScreens.Favorite.screen_route -> {
+                        Text(text = BottomNavScreens.Favorite.title)
+                    }
+                }
+            },
             navigationIcon = {},
             actions = {
                 IconButton(onClick = { onSettingsClicked() }) {
@@ -103,7 +118,8 @@ fun TopBar(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-            }
+            },
+            scrollBehavior = scrollBehavior
         )
     }
 }
