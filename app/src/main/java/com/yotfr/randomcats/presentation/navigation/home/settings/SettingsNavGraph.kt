@@ -10,7 +10,10 @@ import soup.compose.material.motion.navigation.composable
 import soup.compose.material.motion.navigation.navigation
 
 @OptIn(ExperimentalAnimationApi::class)
-fun NavGraphBuilder.settingsNavGraph(navController: NavHostController) {
+fun NavGraphBuilder.settingsNavGraph(
+    signOut: () -> Unit,
+    navController: NavHostController
+) {
     navigation(
         route = RootGraph.SETTINGS,
         startDestination = SettingsScreenRoute.SettingsRoute.screen_route
@@ -19,11 +22,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController) {
             route = SettingsScreenRoute.SettingsRoute.screen_route
         ) {
             SettingsScreen(
-                navigateToAuth = {
-                    navController.navigate(RootGraph.AUTH) {
-                        popUpTo(RootGraph.ROOT)
-                    }
-                },
+                navigateToAuth = { signOut() },
                 navigateToThemeScreen = { navController.navigate(SettingsScreenRoute.SettingsThemeRoute.screen_route) },
                 goBack = { navController.popBackStack() }
             )

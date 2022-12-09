@@ -24,7 +24,9 @@ import soup.compose.material.motion.navigation.rememberMaterialMotionNavControll
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    signOut: () -> Unit
+) {
     val navController = rememberMaterialMotionNavController()
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -49,7 +51,10 @@ fun HomeScreen() {
                     top = it.calculateTopPadding()
                 )
         ) {
-            HomeNavGraph(navController = navController)
+            HomeNavGraph(
+                navController = navController,
+                signOut = { signOut() }
+            )
         }
     }
 }

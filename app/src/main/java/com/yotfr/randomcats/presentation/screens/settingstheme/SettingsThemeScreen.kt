@@ -1,6 +1,5 @@
 package com.yotfr.randomcats.presentation.screens.settingstheme
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -8,12 +7,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.domain.model.Theme
@@ -25,7 +27,6 @@ fun SettingsThemeScreen(
     goBack: () -> Unit,
     viewModel: SettingsThemeViewModel = hiltViewModel()
 ) {
-
     val state by viewModel.state.collectAsState()
 
     Scaffold(
@@ -42,15 +43,16 @@ fun SettingsThemeScreen(
                 .padding(top = it.calculateTopPadding()),
             currentTheme = state.currentTheme,
             onThemeSelected = { theme ->
-                Log.d("TEST","theme -> $theme")
-                viewModel.onEvent(SettingsThemeEvent.ThemeChanged(
-                    theme = theme
-                ))
+                viewModel.onEvent(
+                    SettingsThemeEvent.ThemeChanged(
+                        theme = theme
+                    )
+                )
             },
             lightThemeText = stringResource(id = R.string.light),
             darkThemeText = stringResource(id = R.string.dark),
             systemDefaultThemeText = stringResource(id = R.string.system_default),
-            selectedThemeIcon = Icons.Filled.Check
+            selectedThemeIcon = Icons.Outlined.CheckCircle
         )
     }
 }
@@ -88,15 +90,17 @@ fun ThemePickerCard(
     lightThemeText: String,
     darkThemeText: String,
     systemDefaultThemeText: String,
-    selectedThemeIcon:ImageVector
+    selectedThemeIcon: ImageVector
 ) {
-    Log.d("TEST","anim -> $currentTheme")
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .clickable {
                     onThemeSelected(Theme.LIGHT)
                 }
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = lightThemeText)
             AnimatedVisibility(
@@ -104,17 +108,21 @@ fun ThemePickerCard(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                Icon (
+                Icon(
                     imageVector = selectedThemeIcon,
-                    contentDescription = ""
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .clickable {
                     onThemeSelected(Theme.DARK)
                 }
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = darkThemeText)
             AnimatedVisibility(
@@ -122,17 +130,21 @@ fun ThemePickerCard(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                Icon (
+                Icon(
                     imageVector = selectedThemeIcon,
-                    contentDescription = ""
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .clickable {
                     onThemeSelected(Theme.SYSTEM_DEFAULT)
                 }
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = systemDefaultThemeText)
             AnimatedVisibility(
@@ -140,9 +152,10 @@ fun ThemePickerCard(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                Icon (
+                Icon(
                     imageVector = selectedThemeIcon,
-                    contentDescription = ""
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }

@@ -13,6 +13,7 @@ import com.yotfr.randomcats.domain.model.SignUpModel
 import com.yotfr.randomcats.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -100,16 +101,16 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun isSignedIn(): Boolean = auth.currentUser != null
 
-    override fun signOut(): Flow<Response<Unit, String>> = flow {
+    override fun signOut(): Flow<Response<Unit, String>> = channelFlow {
         withContext(Dispatchers.IO) {
             try {
-                emit(Response.Loading)
-                auth.currentUser?.apply {
-                    delete().await()
-                    emit(Response.Success(Unit))
-                }
+                Log.d("TEST", "trying")
+                send(Response.Loading)
+                auth.signOut()
+                send(Response.Success(Unit))
             } catch (e: Exception) {
-                emit(
+                Log.d("TEST", "exception ${e.message} ${e.cause} $e")
+                send(
                     Response.Exception(
                         cause = Cause.UnknownException(
                             message = e.message.toString()

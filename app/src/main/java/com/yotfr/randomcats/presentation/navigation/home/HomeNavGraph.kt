@@ -1,10 +1,8 @@
 package com.yotfr.randomcats.presentation.navigation.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
-
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-
 import androidx.navigation.NavHostController
 import com.yotfr.randomcats.presentation.navigation.home.cat_list.catListNavGraph
 import com.yotfr.randomcats.presentation.navigation.home.settings.settingsNavGraph
@@ -15,11 +13,12 @@ import soup.compose.material.motion.animation.materialFadeThroughOut
 import soup.compose.material.motion.navigation.MaterialMotionNavHost
 import soup.compose.material.motion.navigation.composable
 
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun HomeNavGraph(navController:NavHostController) {
-
+fun HomeNavGraph(
+    navController: NavHostController,
+    signOut: () -> Unit
+) {
     MaterialMotionNavHost(
         route = RootGraph.HOME,
         navController = navController,
@@ -39,6 +38,9 @@ fun HomeNavGraph(navController:NavHostController) {
 
         catListNavGraph(navController = navController)
 
-        settingsNavGraph(navController = navController)
+        settingsNavGraph(
+            navController = navController,
+            signOut = { signOut() }
+        )
     }
 }

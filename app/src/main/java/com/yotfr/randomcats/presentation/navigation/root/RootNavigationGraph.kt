@@ -10,18 +10,26 @@ import soup.compose.material.motion.navigation.composable
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun RootNavigationGraph (
+fun RootNavigationGraph(
     navController: NavHostController,
-    startDestination:String
-){
-    MaterialMotionNavHost (
+    startDestination: String
+) {
+    MaterialMotionNavHost(
         navController = navController,
         route = RootGraph.ROOT,
         startDestination = startDestination
-    ){
+    ) {
         authNavGraph(navController = navController)
-        composable(route = RootGraph.HOME){
-            HomeScreen()
+        composable(route = RootGraph.HOME) {
+            HomeScreen(
+                signOut = {
+                    navController.navigate(
+                        RootGraph.AUTH
+                    ){
+                        popUpTo(RootGraph.ROOT)
+                    }
+                }
+            )
         }
     }
 }
