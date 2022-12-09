@@ -1,12 +1,17 @@
 package com.yotfr.randomcats.presentation.screens.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -22,14 +27,12 @@ import com.yotfr.randomcats.presentation.screens.settings.event.SettingsScreenEv
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     navigateToAuth: () -> Unit,
-    navigateToThemeScreen:() -> Unit,
+    navigateToThemeScreen: () -> Unit,
     goBack: () -> Unit
 ) {
-
     val event = viewModel.event
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-
 
     Scaffold(
         topBar = {
@@ -46,42 +49,43 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(
                     top = it.calculateTopPadding(),
-                    start = 8.dp,
-                    end = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp,
                     bottom = 8.dp
                 )
         ) {
             AccountSection(
                 modifier = Modifier.fillMaxWidth(),
                 accountTitleText = stringResource(id = R.string.account),
-                onChangePasswordClicked = {  },
-                changePasswordText = stringResource(id = R.string.change_password)
+                onChangePasswordClicked = { },
+                changePasswordText = stringResource(id = R.string.change_password),
+                changePasswordIcon = Icons.Outlined.Lock,
+                chevronForwardIcon = Icons.Outlined.ChevronRight
             )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp))
             AppearanceSection(
                 modifier = Modifier.fillMaxWidth(),
                 appearanceTitleText = stringResource(id = R.string.appearance),
                 onThemeClicked = { viewModel.onEvent(SettingsEvent.ThemePressed) },
-                themeText = stringResource(id = R.string.theme)
+                themeText = stringResource(id = R.string.theme),
+                themeIcon = Icons.Outlined.Palette,
+                chevronForwardIcon = Icons.Outlined.ChevronRight
             )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp))
             GeneralSection(
                 modifier = Modifier.fillMaxWidth(),
                 generalTitleText = stringResource(id = R.string.general),
-                onLanguageClicked = {  },
-                languageText = stringResource(id = R.string.language)
+                onLanguageClicked = { },
+                languageText = stringResource(id = R.string.language),
+                languageIcon = Icons.Outlined.Language,
+                chevronForwardIcon = Icons.Outlined.ChevronRight
             )
-            LogOutButton (
-                onLogoutClicked = {  },
+            LogOutButton(
+                onLogoutClicked = {
+                    viewModel.onEvent(SettingsEvent.SignOut)
+                },
                 logoutText = stringResource(id = R.string.sign_out)
             )
         }
     }
-
 
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -97,10 +101,7 @@ fun SettingsScreen(
             }
         }
     }
-
-
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,17 +133,57 @@ fun AccountSection(
     modifier: Modifier,
     accountTitleText: String,
     onChangePasswordClicked: () -> Unit,
-    changePasswordText: String
+    changePasswordText: String,
+    changePasswordIcon: ImageVector,
+    chevronForwardIcon: ImageVector
 ) {
-    ElevatedCard(modifier = modifier) {
-        Text(
-            text = accountTitleText,
-            color = MaterialTheme.colorScheme.primary
-        )
-        TextButton(
-            onClick = { onChangePasswordClicked() }
+    Column(modifier = modifier) {
+        ElevatedCard(
+            shape = RectangleShape,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                    2.dp
+                )
+            )
         ) {
-            Text(text = changePasswordText)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.5f)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                text = accountTitleText,
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        ElevatedCard(
+            shape = RectangleShape
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onChangePasswordClicked()
+                    }
+                    .padding(horizontal = 8.dp, vertical = 16.dp)
+            ) {
+                Icon(
+                    imageVector = changePasswordIcon,
+                    contentDescription = changePasswordText
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = changePasswordText,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Icon(
+                    imageVector = chevronForwardIcon,
+                    contentDescription = changePasswordText
+                )
+            }
         }
     }
 }
@@ -152,17 +193,57 @@ fun AppearanceSection(
     modifier: Modifier,
     appearanceTitleText: String,
     onThemeClicked: () -> Unit,
-    themeText: String
+    themeText: String,
+    themeIcon: ImageVector,
+    chevronForwardIcon: ImageVector
 ) {
-    ElevatedCard(modifier = modifier) {
-        Text(
-            text = appearanceTitleText,
-            color = MaterialTheme.colorScheme.primary
-        )
-        TextButton(
-            onClick = { onThemeClicked() }
+    Column(modifier = modifier) {
+        ElevatedCard(
+            shape = RectangleShape,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                    2.dp
+                )
+            )
         ) {
-            Text(text = themeText)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.5f)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                text = appearanceTitleText,
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        ElevatedCard(
+            shape = RectangleShape
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onThemeClicked()
+                    }
+                    .padding(horizontal = 8.dp, vertical = 16.dp)
+            ) {
+                Icon(
+                    imageVector = themeIcon,
+                    contentDescription = themeText
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = themeText,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Icon(
+                    imageVector = chevronForwardIcon,
+                    contentDescription = themeText
+                )
+            }
         }
     }
 }
@@ -172,17 +253,57 @@ fun GeneralSection(
     modifier: Modifier,
     generalTitleText: String,
     onLanguageClicked: () -> Unit,
-    languageText: String
+    languageText: String,
+    languageIcon: ImageVector,
+    chevronForwardIcon: ImageVector
 ) {
-    ElevatedCard(modifier = modifier) {
-        Text(
-            text = generalTitleText,
-            color = MaterialTheme.colorScheme.primary
-        )
-        TextButton(
-            onClick = { onLanguageClicked() }
+    Column(modifier = modifier) {
+        ElevatedCard(
+            shape = RectangleShape,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                    2.dp
+                )
+            )
         ) {
-            Text(text = languageText)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.5f)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                text = generalTitleText,
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        ElevatedCard(
+            shape = RectangleShape
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onLanguageClicked()
+                    }
+                    .padding(horizontal = 8.dp, vertical = 16.dp)
+            ) {
+                Icon(
+                    imageVector = languageIcon,
+                    contentDescription = languageText
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = languageText,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Icon(
+                    imageVector = chevronForwardIcon,
+                    contentDescription = languageText
+                )
+            }
         }
     }
 }

@@ -14,19 +14,23 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController) {
     navigation(
         route = RootGraph.SETTINGS,
         startDestination = SettingsScreenRoute.SettingsRoute.screen_route
-    ){
+    ) {
         composable(
             route = SettingsScreenRoute.SettingsRoute.screen_route
-        ){
+        ) {
             SettingsScreen(
-                navigateToAuth = {  },
-                navigateToThemeScreen = {navController.navigate(SettingsScreenRoute.SettingsThemeRoute.screen_route) },
+                navigateToAuth = {
+                    navController.navigate(RootGraph.AUTH) {
+                        popUpTo(RootGraph.ROOT)
+                    }
+                },
+                navigateToThemeScreen = { navController.navigate(SettingsScreenRoute.SettingsThemeRoute.screen_route) },
                 goBack = { navController.popBackStack() }
             )
         }
         composable(
             route = SettingsScreenRoute.SettingsThemeRoute.screen_route
-        ){
+        ) {
             SettingsThemeScreen(
                 goBack = {
                     navController.popBackStack()
