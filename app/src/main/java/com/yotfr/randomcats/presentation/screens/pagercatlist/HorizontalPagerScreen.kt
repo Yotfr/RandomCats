@@ -18,7 +18,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -64,10 +63,9 @@ import java.io.OutputStream
 @Composable
 fun HorizontalPagerScreen(
     viewModel: PagerCatListViewModel = hiltViewModel(),
-    onBackPressed: (selectedIndex:Int) -> Unit,
-    selectedIndex:Int
+    onBackPressed: (selectedIndex: Int) -> Unit,
+    selectedIndex: Int
 ) {
-
     val context = LocalContext.current
     var hasWriteStoragePermission by remember {
         mutableStateOf(
@@ -113,8 +111,8 @@ fun HorizontalPagerScreen(
 
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            event.collect{ uiEvent ->
-                when(uiEvent) {
+            event.collect { uiEvent ->
+                when (uiEvent) {
                     is PagerCatListScreenEvent.NavigateToGridCatList -> {
                         onBackPressed(uiEvent.selectedIndex)
                     }
@@ -122,7 +120,6 @@ fun HorizontalPagerScreen(
             }
         }
     }
-
 
     LaunchedEffect(pagerState, state) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
@@ -200,21 +197,19 @@ fun HorizontalPagerScreen(
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = Color.Black)
                     .clickable {
                         barsVisibility = !barsVisibility
                     }
             ) { page ->
-                Page (
+                Page(
                     modifier = Modifier.fillMaxSize(),
                     catUrl = state.cats[page].url,
                     catContentDescription = stringResource(id = R.string.random_cat_image),
                     loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder)
                 )
             }
-        },
+        }
     )
-
 }
 
 @Composable
@@ -224,37 +219,37 @@ fun Page(
     catContentDescription: String,
     loadingPlaceholderPainter: Painter
 ) {
-        SubcomposeAsyncImage(
-            modifier = modifier,
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(catUrl)
-                .crossfade(true)
-                .build(),
-            contentDescription = catContentDescription,
-            contentScale = ContentScale.FillWidth,
-            alignment = Alignment.Center
+    SubcomposeAsyncImage(
+        modifier = modifier,
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(catUrl)
+            .crossfade(true)
+            .build(),
+        contentDescription = catContentDescription,
+        contentScale = ContentScale.FillWidth,
+        alignment = Alignment.Center
+    ) {
+        val painterState = painter.state
+        if (painterState is AsyncImagePainter.State.Loading ||
+            painterState is AsyncImagePainter.State.Error
         ) {
-            val painterState = painter.state
-            if (painterState is AsyncImagePainter.State.Loading ||
-                painterState is AsyncImagePainter.State.Error
-            ) {
-                Image(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(64.dp)
-                        .alpha(0.5f),
-                    painter = loadingPlaceholderPainter,
-                    contentDescription = "",
-                    contentScale = ContentScale.FillWidth,
-                    alignment = Alignment.Center,
-                    colorFilter = ColorFilter.tint(
-                        color = Color.Gray
-                    )
+            Image(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(64.dp)
+                    .alpha(0.5f),
+                painter = loadingPlaceholderPainter,
+                contentDescription = "",
+                contentScale = ContentScale.FillWidth,
+                alignment = Alignment.Center,
+                colorFilter = ColorFilter.tint(
+                    color = Color.Gray
                 )
-            } else {
-                SubcomposeAsyncImageContent()
-            }
+            )
+        } else {
+            SubcomposeAsyncImageContent()
         }
+    }
 }
 
 @Composable
@@ -271,35 +266,44 @@ fun BottomBar(
     ) {
         BottomAppBar(
             modifier = Modifier.fillMaxWidth()
+                .height(72.dp),
         ) {
-            IconButton(
-                onClick = { onDownloadClicked() }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_download),
-                    contentDescription = stringResource(id = R.string.save_to_gallery)
-                )
-            }
-            IconButton(
-                onClick = { onShareClicked() }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_share),
-                    contentDescription = stringResource(id = R.string.share)
-                )
-            }
-            IconButton(
-                onClick = { onDeleteClicked() }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_favorite_minus),
-                    contentDescription = stringResource(id = R.string.delete_from_favorite)
-                )
+                IconButton(
+                    modifier = Modifier.size(24.dp),
+                    onClick = { onDownloadClicked() }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_download),
+                        contentDescription = stringResource(id = R.string.save_to_gallery)
+                    )
+                }
+                IconButton(
+                    modifier = Modifier.size(24.dp),
+                    onClick = { onShareClicked() }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_share),
+                        contentDescription = stringResource(id = R.string.share)
+                    )
+                }
+                IconButton(
+                    modifier = Modifier.size(24.dp),
+                    onClick = { onDeleteClicked() }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_favorite_minus),
+                        contentDescription = stringResource(id = R.string.delete_from_favorite)
+                    )
+                }
             }
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -331,11 +335,15 @@ fun TopBar(
                     Text(text = date)
                     Text(text = time)
                 }
-            }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                    1.dp
+                )
+            )
         )
     }
 }
-
 
 private fun saveMediaToStorage(bitmap: Bitmap, fileId: String, context: Context) {
     var fos: OutputStream? = null
@@ -362,13 +370,11 @@ private fun saveMediaToStorage(bitmap: Bitmap, fileId: String, context: Context)
 }
 
 private fun shareImage(uri: Uri, context: Context) {
-
     val intent = Intent(Intent.ACTION_SEND)
     intent.putExtra(Intent.EXTRA_STREAM, uri)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
     intent.type = "image/*"
     context.startActivity(Intent.createChooser(intent, "Share image"))
-
 }
 
 private fun getImageToShare(bitmap: Bitmap, context: Context): Uri {
@@ -384,7 +390,6 @@ private fun getImageToShare(bitmap: Bitmap, context: Context): Uri {
         fileOutputStream.close()
 
         uri = FileProvider.getUriForFile(context, "com.yotfr.randomcats", file)
-
     } catch (e: java.lang.Exception) {
         e.printStackTrace()
     }
