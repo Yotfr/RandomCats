@@ -1,5 +1,6 @@
 package com.yotfr.randomcats.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -33,6 +34,13 @@ class UserRepositoryImpl @Inject constructor(
                     emit(
                         Response.Exception(
                             cause = Cause.FirebaseUserAlreadyExistsException
+                        )
+                    )
+                }
+                is FirebaseAuthInvalidCredentialsException -> {
+                    emit(
+                        Response.Exception(
+                            cause = Cause.FirebaseEmailBadlyFromattedException
                         )
                     )
                 }
@@ -113,6 +121,5 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override fun getCurrentUserUid(): String = auth.currentUser?.uid ?: throw
-            IllegalArgumentException("User is not signed in")
-
+    IllegalArgumentException("User is not signed in")
 }

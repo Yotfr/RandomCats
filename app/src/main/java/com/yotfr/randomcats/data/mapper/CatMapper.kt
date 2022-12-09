@@ -1,6 +1,6 @@
 package com.yotfr.randomcats.data.mapper
 
-import com.yotfr.randomcats.base.utlis.Constants
+import com.yotfr.randomcats.base.ext.utlis.Constants
 import com.yotfr.randomcats.data.dto.CatResponse
 import com.yotfr.randomcats.domain.model.Cat
 

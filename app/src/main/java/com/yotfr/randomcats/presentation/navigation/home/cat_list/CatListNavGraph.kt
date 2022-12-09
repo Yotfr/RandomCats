@@ -5,8 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import com.yotfr.randomcats.presentation.navigation.home.BottomNavScreens
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
-import com.yotfr.randomcats.presentation.screens.grid_cat_list.GridListScreen
-import com.yotfr.randomcats.presentation.screens.pager_cat_list.HorizontalPagerScreen
+import com.yotfr.randomcats.presentation.screens.gridcatlist.GridListScreen
+import com.yotfr.randomcats.presentation.screens.pagercatlist.HorizontalPagerScreen
 import soup.compose.material.motion.animation.materialElevationScaleIn
 import soup.compose.material.motion.animation.materialElevationScaleOut
 import soup.compose.material.motion.animation.materialFadeThroughIn

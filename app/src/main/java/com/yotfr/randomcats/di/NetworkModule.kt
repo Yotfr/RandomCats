@@ -1,7 +1,7 @@
 package com.yotfr.randomcats.di
 
 import com.google.firebase.auth.FirebaseAuth
-import com.yotfr.randomcats.base.utlis.Constants
+import com.yotfr.randomcats.base.ext.utlis.Constants
 import com.yotfr.randomcats.data.data_source.CatsApi
 import dagger.Module
 import dagger.Provides

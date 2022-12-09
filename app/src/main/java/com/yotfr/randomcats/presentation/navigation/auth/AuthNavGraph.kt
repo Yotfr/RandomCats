@@ -4,8 +4,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
-import com.yotfr.randomcats.presentation.screens.sign_in.SignInScreen
-import com.yotfr.randomcats.presentation.screens.sign_up.SignUpScreen
+import com.yotfr.randomcats.presentation.screens.signin.SignInScreen
+import com.yotfr.randomcats.presentation.screens.signup.SignUpScreen
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
 

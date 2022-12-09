@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
 import com.yotfr.randomcats.presentation.screens.settings.SettingsScreen
-import com.yotfr.randomcats.presentation.screens.settings_theme.SettingsThemeScreen
+import com.yotfr.randomcats.presentation.screens.settingstheme.SettingsThemeScreen
 import soup.compose.material.motion.navigation.composable
 import soup.compose.material.motion.navigation.navigation
 

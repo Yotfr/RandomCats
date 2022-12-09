@@ -9,7 +9,7 @@ import androidx.navigation.NavHostController
 import com.yotfr.randomcats.presentation.navigation.home.cat_list.catListNavGraph
 import com.yotfr.randomcats.presentation.navigation.home.settings.settingsNavGraph
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
-import com.yotfr.randomcats.presentation.screens.random_cat_screen.RandomCatScreen
+import com.yotfr.randomcats.presentation.screens.randomcatscreen.RandomCatScreen
 import soup.compose.material.motion.animation.materialFadeThroughIn
 import soup.compose.material.motion.animation.materialFadeThroughOut
 import soup.compose.material.motion.navigation.MaterialMotionNavHost
