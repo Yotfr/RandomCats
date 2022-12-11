@@ -124,7 +124,9 @@ fun TopBar(
                     contentDescription = stringResource(id = R.string.to_sign_in)
                 )
             }
-        }
+        },
+        windowInsets = WindowInsets.systemBars
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
     )
 }
 

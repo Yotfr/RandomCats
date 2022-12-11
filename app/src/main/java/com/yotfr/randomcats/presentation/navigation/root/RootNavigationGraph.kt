@@ -25,7 +25,7 @@ fun RootNavigationGraph(
                 signOut = {
                     navController.navigate(
                         RootGraph.AUTH
-                    ){
+                    ) {
                         popUpTo(RootGraph.ROOT)
                     }
                 }

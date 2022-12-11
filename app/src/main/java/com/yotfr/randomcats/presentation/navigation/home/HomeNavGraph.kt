@@ -5,7 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.yotfr.randomcats.presentation.navigation.home.cat_list.catListNavGraph
-import com.yotfr.randomcats.presentation.navigation.home.settings.settingsNavGraph
+import com.yotfr.randomcats.presentation.navigation.settings.settingsNavGraph
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
 import com.yotfr.randomcats.presentation.screens.randomcats.RandomCatScreen
 import soup.compose.material.motion.animation.materialFadeThroughIn

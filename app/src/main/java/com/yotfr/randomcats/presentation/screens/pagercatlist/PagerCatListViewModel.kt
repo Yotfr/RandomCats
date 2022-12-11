@@ -3,7 +3,7 @@ package com.yotfr.randomcats.presentation.screens.pagercatlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.use_case.cats.UseCases
+import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.pagercatlist.event.PagerCatListEvent
 import com.yotfr.randomcats.presentation.screens.pagercatlist.event.PagerCatListScreenEvent
 import com.yotfr.randomcats.presentation.screens.pagercatlist.mapper.PagerCatListMapper
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PagerCatListViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val catsUseCases: CatsUseCases
 ) : ViewModel() {
 
     private val pagerCatListMapper = PagerCatListMapper()
@@ -49,7 +49,7 @@ class PagerCatListViewModel @Inject constructor(
 
     private fun deleteCatFromFavorite(cat: PagerCatListModel) {
         viewModelScope.launch {
-            useCases.deleteCatFromRemoteDb(
+            catsUseCases.deleteCatFromRemoteDb(
                 cat = pagerCatListMapper.toDomain(
                     uiModel = cat
                 )
@@ -59,7 +59,7 @@ class PagerCatListViewModel @Inject constructor(
 
     private fun getCats() {
         viewModelScope.launch {
-            useCases.getCatsFromRemoteDb().collectLatest { result ->
+            catsUseCases.getCatsFromRemoteDb().collectLatest { result ->
                 when (result) {
                     is Response.Success -> {
                         _state.update {

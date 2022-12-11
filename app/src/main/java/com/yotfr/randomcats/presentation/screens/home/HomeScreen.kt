@@ -19,7 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.navigation.home.BottomNavScreens
 import com.yotfr.randomcats.presentation.navigation.home.HomeNavGraph
-import com.yotfr.randomcats.presentation.navigation.home.settings.SettingsScreenRoute
+import com.yotfr.randomcats.presentation.navigation.settings.SettingsScreenRoute
 import soup.compose.material.motion.navigation.rememberMaterialMotionNavController
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
@@ -30,6 +30,16 @@ fun HomeScreen(
     val navController = rememberMaterialMotionNavController()
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    val screens = listOf(
+        BottomNavScreens.Home,
+        BottomNavScreens.Favorite
+    )
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val systemBarsVisible = screens.any { it.screen_route == currentDestination?.route }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -47,8 +57,10 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .padding(
-                    bottom = it.calculateBottomPadding(),
-                    top = it.calculateTopPadding()
+                    bottom = if (systemBarsVisible) it.calculateBottomPadding()
+                    else 0.dp,
+                    top = if (systemBarsVisible) it.calculateTopPadding()
+                    else 0.dp
                 )
         ) {
             HomeNavGraph(
@@ -60,7 +72,9 @@ fun HomeScreen(
 }
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(
+    navController: NavHostController
+) {
     val screens = listOf(
         BottomNavScreens.Home,
         BottomNavScreens.Favorite
@@ -72,7 +86,9 @@ fun BottomBar(navController: NavHostController) {
     val bottomBarDestination = screens.any { it.screen_route == currentDestination?.route }
     if (bottomBarDestination) {
         NavigationBar(
-            tonalElevation = 1.dp
+            tonalElevation = 1.dp,
+            windowInsets = WindowInsets.systemBars
+                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
         ) {
             screens.forEach { screen ->
                 AddItem(
@@ -124,7 +140,9 @@ fun TopBar(
                     )
                 }
             },
-            scrollBehavior = scrollBehavior
+            scrollBehavior = scrollBehavior,
+            windowInsets = WindowInsets.systemBars
+                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
         )
     }
 }

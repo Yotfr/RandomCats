@@ -3,7 +3,7 @@ package com.yotfr.randomcats.presentation.screens.randomcats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.use_case.cats.UseCases
+import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.randomcats.event.RandomCatEvent
 import com.yotfr.randomcats.presentation.screens.randomcats.model.PeekingCatsLocations
 import com.yotfr.randomcats.presentation.screens.randomcats.model.RandomCatState
@@ -20,7 +20,7 @@ import kotlin.random.Random
 
 @HiltViewModel
 class RandomCatViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val catsUseCases: CatsUseCases
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RandomCatState())
@@ -66,7 +66,7 @@ class RandomCatViewModel @Inject constructor(
 
     private fun uploadCatToRemoteDb() {
         viewModelScope.launch {
-            useCases.uploadCatToRemoteDbUseCase(
+            catsUseCases.uploadCatToRemoteDbUseCase(
                 cat = _state.value.cat?.copy(
                     created = getCurrentDay()
                 ) ?: throw Exception(
@@ -97,7 +97,7 @@ class RandomCatViewModel @Inject constructor(
 
     private fun getCat() {
         viewModelScope.launch {
-            useCases.getRandomCat().collectLatest { result ->
+            catsUseCases.getRandomCat().collectLatest { result ->
                 when(result) {
                     is Response.Loading -> {
                         _state.update {

@@ -3,7 +3,7 @@ package com.yotfr.randomcats.presentation.screens.gridcatlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.use_case.cats.UseCases
+import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListEvent
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListScreenEvent
 import com.yotfr.randomcats.presentation.screens.gridcatlist.mapper.GridCatListMapper
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GridCatListViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val catsUseCases: CatsUseCases
 ) : ViewModel() {
 
     private val gridCatListMapper = GridCatListMapper()
@@ -50,7 +50,7 @@ class GridCatListViewModel @Inject constructor(
 
     private fun deleteCatFromFavorite(cat: GridCatListModel) {
         viewModelScope.launch {
-            useCases.deleteCatFromRemoteDb(
+            catsUseCases.deleteCatFromRemoteDb(
                 cat = gridCatListMapper.toDomain(
                     uiModel = cat
                 )
@@ -60,7 +60,7 @@ class GridCatListViewModel @Inject constructor(
 
     private fun getCats() {
         viewModelScope.launch {
-            useCases.getCatsFromRemoteDb().collectLatest { result ->
+            catsUseCases.getCatsFromRemoteDb().collectLatest { result ->
                 when (result) {
                     is Response.Success -> {
                         _state.update {

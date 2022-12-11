@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.navigation.home.settings
+package com.yotfr.randomcats.presentation.navigation.settings
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.NavGraphBuilder

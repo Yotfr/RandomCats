@@ -6,7 +6,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.yotfr.randomcats.domain.model.Theme
@@ -40,9 +39,8 @@ private val LightColors = lightColorScheme(
     inversePrimary = md_theme_light_inversePrimary,
     surfaceTint = md_theme_light_surfaceTint,
     outlineVariant = md_theme_light_outlineVariant,
-    scrim = md_theme_light_scrim,
+    scrim = md_theme_light_scrim
 )
-
 
 private val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
@@ -73,7 +71,7 @@ private val DarkColors = darkColorScheme(
     inversePrimary = md_theme_dark_inversePrimary,
     surfaceTint = md_theme_dark_surfaceTint,
     outlineVariant = md_theme_dark_outlineVariant,
-    scrim = md_theme_dark_scrim,
+    scrim = md_theme_dark_scrim
 )
 
 @Composable
@@ -81,8 +79,7 @@ fun RandomCatsTheme(
     theme: Theme,
     content: @Composable () -> Unit
 ) {
-
-    val colors = when(theme) {
+    val colors = when (theme) {
         Theme.LIGHT -> {
             LightColors
         }
@@ -92,7 +89,7 @@ fun RandomCatsTheme(
         Theme.SYSTEM_DEFAULT -> {
             if (isSystemInDarkTheme()) {
                 DarkColors
-            }else {
+            } else {
                 LightColors
             }
         }
@@ -105,8 +102,6 @@ fun RandomCatsTheme(
         typography = Typography,
         content = content
     )
-
-
 }
 
 @Composable
@@ -116,7 +111,7 @@ fun ConfigureSystemBars(
     val systemUiController = rememberSystemUiController()
     val isSystemDarkTheme = isSystemInDarkTheme()
 
-    val useDarkIcons = when(theme) {
+    val useDarkIcons = when (theme) {
         Theme.SYSTEM_DEFAULT -> {
             !isSystemDarkTheme
         }
@@ -128,12 +123,11 @@ fun ConfigureSystemBars(
         }
     }
 
-    DisposableEffect(systemUiController, isSystemDarkTheme) {
+    DisposableEffect(systemUiController, isSystemDarkTheme, useDarkIcons) {
         systemUiController.setSystemBarsColor(
             color = Color.Transparent,
             darkIcons = useDarkIcons
         )
-        onDispose {  }
+        onDispose { }
     }
 }
-

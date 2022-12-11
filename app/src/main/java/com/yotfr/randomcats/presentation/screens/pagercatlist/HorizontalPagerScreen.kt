@@ -266,7 +266,7 @@ fun BottomBar(
     ) {
         BottomAppBar(
             modifier = Modifier.fillMaxWidth()
-                .height(72.dp),
+                .height(72.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

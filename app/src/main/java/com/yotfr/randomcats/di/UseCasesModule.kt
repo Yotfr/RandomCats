@@ -22,8 +22,8 @@ class UseCasesModule {
     fun provideUseCases(
        catsRepository: CatsRepository,
        userRepository: UserRepository
-    ): UseCases {
-        return UseCases(
+    ): CatsUseCases {
+        return CatsUseCases(
             getRandomCat = GetRandomCatUseCase(
                 catsRepository = catsRepository
             ),
