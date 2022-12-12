@@ -18,16 +18,15 @@ interface RepositoryModule {
 
     @Binds
     @Singleton
-    fun bindCatsRepository(catsRepositoryImpl: CatsRepositoryImpl):CatsRepository
+    fun bindCatsRepository(catsRepositoryImpl: CatsRepositoryImpl): CatsRepository
 
     @Binds
     @Singleton
-    fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl):UserRepository
+    fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
 
     @Binds
     @Singleton
     fun bindUserPreferencesRepository(
         userPreferencesRepositoryImpl: UserPreferencesRepositoryImpl
-    ):UserPreferencesRepository
-
+    ): UserPreferencesRepository
 }

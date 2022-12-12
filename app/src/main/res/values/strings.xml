@@ -50,4 +50,8 @@
     <string name="dark">Dark</string>
     <string name="system_default">System default</string>
 
+    <string name="reset_password">Forgot your password</string>
+    <string name="reset_password_subtitle">Please enter your email address you\'d like your password reset information sent to</string>
+    <string name="send">Send</string>
+
 </resources>

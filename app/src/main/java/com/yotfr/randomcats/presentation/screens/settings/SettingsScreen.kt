@@ -70,14 +70,6 @@ fun SettingsScreen(
                 themeIcon = Icons.Outlined.Palette,
                 chevronForwardIcon = Icons.Outlined.ChevronRight
             )
-            GeneralSection(
-                modifier = Modifier.fillMaxWidth(),
-                generalTitleText = stringResource(id = R.string.general),
-                onLanguageClicked = { },
-                languageText = stringResource(id = R.string.language),
-                languageIcon = Icons.Outlined.Language,
-                chevronForwardIcon = Icons.Outlined.ChevronRight
-            )
             LogOutButton(
                 onLogoutClicked = {
                     viewModel.onEvent(SettingsEvent.SignOut)
@@ -244,66 +236,6 @@ fun AppearanceSection(
                 Icon(
                     imageVector = chevronForwardIcon,
                     contentDescription = themeText
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun GeneralSection(
-    modifier: Modifier,
-    generalTitleText: String,
-    onLanguageClicked: () -> Unit,
-    languageText: String,
-    languageIcon: ImageVector,
-    chevronForwardIcon: ImageVector
-) {
-    Column(modifier = modifier) {
-        ElevatedCard(
-            shape = RectangleShape,
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                    2.dp
-                )
-            )
-        ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(0.5f)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                text = generalTitleText,
-                style = MaterialTheme.typography.titleSmall
-            )
-        }
-        ElevatedCard(
-            shape = RectangleShape
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onLanguageClicked()
-                    }
-                    .padding(horizontal = 8.dp, vertical = 16.dp)
-            ) {
-                Icon(
-                    imageVector = languageIcon,
-                    contentDescription = languageText
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = languageText,
-                    style = MaterialTheme.typography.titleSmall
-                )
-                Icon(
-                    imageVector = chevronForwardIcon,
-                    contentDescription = languageText
                 )
             }
         }

@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.base.ext
+package com.yotfr.randomcats.base
 
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
