@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 fun SignInScreen(
     toSignUp: () -> Unit,
     toMain: () -> Unit,
+    toResetPassword: () -> Unit,
     viewModel: SignInViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -154,7 +155,7 @@ fun SignInScreen(
                     viewModel.onEvent(SignInEvent.SignInUser)
                 },
                 onForgotPasswordClicked = {
-                    // TODO
+                    toResetPassword()
                 },
                 isLoading = state.isLoading
             )

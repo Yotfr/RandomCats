@@ -5,7 +5,7 @@ import com.yotfr.randomcats.domain.model.Cat
 
 class CatFirebaseMapper {
 
-    fun toDomain (firebaseModel:CatFirebase):Cat{
+    fun toDomain(firebaseModel: CatFirebase): Cat {
         return Cat(
             id = firebaseModel.id,
             url = firebaseModel.url,
@@ -13,7 +13,7 @@ class CatFirebaseMapper {
         )
     }
 
-    fun fromDomain ( domainModel:Cat, userId:String ):CatFirebase{
+    fun fromDomain(domainModel: Cat, userId: String): CatFirebase {
         return CatFirebase(
             id = domainModel.id,
             url = domainModel.url,
@@ -21,5 +21,4 @@ class CatFirebaseMapper {
             userId = userId
         )
     }
-
 }

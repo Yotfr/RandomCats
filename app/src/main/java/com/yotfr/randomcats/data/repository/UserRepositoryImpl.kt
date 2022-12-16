@@ -6,10 +6,7 @@ import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.yotfr.randomcats.domain.model.Cause
-import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.model.SignInModel
-import com.yotfr.randomcats.domain.model.SignUpModel
+import com.yotfr.randomcats.domain.model.*
 import com.yotfr.randomcats.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -17,8 +14,8 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 import javax.inject.Inject
+import kotlin.Exception
 
 class UserRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth
@@ -117,6 +114,43 @@ class UserRepositoryImpl @Inject constructor(
                         )
                     )
                 )
+            }
+        }
+    }
+
+    override fun sendResetPasswordLink(resetPasswordModel: ResetPasswordModel): Flow<Response<Unit, String>> = channelFlow {
+        withContext(Dispatchers.IO) {
+            try {
+                send(Response.Loading)
+                auth.sendPasswordResetEmail(resetPasswordModel.email).await()
+                send(Response.Success(Unit))
+            } catch (e: Exception) {
+                Log.d("TEST","exc -> ${e.cause} ${e.message} $e")
+                when(e) {
+                    is FirebaseAuthInvalidCredentialsException -> {
+                        send(
+                            Response.Exception(
+                                cause = Cause.FirebaseEmailBadlyFromattedException
+                            )
+                        )
+                    }
+                    is FirebaseAuthInvalidUserException -> {
+                        send(
+                            Response.Exception(
+                                cause = Cause.InvalidFirebaseCredentialsException
+                            )
+                        )
+                    }
+                    else -> {
+                        send(
+                            Response.Exception(
+                                cause = Cause.UnknownException(
+                                    message = e.message.toString()
+                                )
+                            )
+                        )
+                    }
+                }
             }
         }
     }

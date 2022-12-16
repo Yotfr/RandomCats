@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.screens.reset_password
+package com.yotfr.randomcats.presentation.screens.resetpassword
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,17 +12,60 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.yotfr.randomcats.R
+import com.yotfr.randomcats.presentation.screens.resetpassword.event.ResetPasswordEvent
+import com.yotfr.randomcats.presentation.screens.resetpassword.event.ResetPasswordScreenEvent
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResetPasswordScreen(
-    backToSignIn: () -> Unit
+    backToSignIn: () -> Unit,
+    viewModel: ResetPasswordViewModel = hiltViewModel()
 ) {
+    val state by viewModel.state.collectAsState()
+
+    val context = LocalContext.current
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    // collect uiEvents
+    LaunchedEffect(key1 = Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.event.collect {
+                when (it) {
+                    ResetPasswordScreenEvent.ShowNoUserCorrespondingEmailSnackbar -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.resources.getString(R.string.no_user_with_this_email)
+                            )
+                        }
+                    }
+                    ResetPasswordScreenEvent.ShowEmailLinkSentSnackbar -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.resources.getString(R.string.check_email)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -67,23 +110,33 @@ fun ResetPasswordScreen(
                     .height(32.dp)
             )
             EmailField(
-                isEmailEmptyError = ,
+                isEmailEmptyError = state.isEmailEmptyError,
                 emailLabelText = stringResource(id = R.string.email),
                 modifier = Modifier.fillMaxWidth(),
-                onEmailTextChanged = ,
-                emailText = ,
+                onEmailTextChanged = { newText ->
+                    viewModel.onEvent(
+                        ResetPasswordEvent.UpdateEmailText(
+                            newText = newText
+                        )
+                    )
+                },
+                emailText = state.emailText,
                 emptyEmailFieldErrorMessage = stringResource(id = R.string.enter_email_adress),
-                isEmailInvalidError = ,
-                invalidEmailErrorMessage = stringResource(id = R.string.email_adress_not_valid)
+                isEmailInvalidError = state.isEmailInvalidError,
+                invalidEmailErrorMessage = stringResource(id = R.string.email_adress_not_valid),
+                isNoUserWithThisEmailError = state.isNoUserWithThisEmailError
             )
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(32.dp)
             )
-            ResetPasswordButton (
-                onSendClicked = { /*TODO*/ },
-                sendButtonText = stringResource(id = R.string.send)
+            ResetPasswordButton(
+                onSendClicked = {
+                    viewModel.onEvent(ResetPasswordEvent.SendResetEmail)
+                },
+                sendButtonText = stringResource(id = R.string.send),
+                isLoading = state.isLoading
             )
         }
     }
@@ -129,7 +182,8 @@ fun EmailField(
     emailText: String,
     emptyEmailFieldErrorMessage: String,
     isEmailInvalidError: Boolean,
-    invalidEmailErrorMessage: String
+    invalidEmailErrorMessage: String,
+    isNoUserWithThisEmailError:Boolean
 ) {
     var emailTextFocused by remember { mutableStateOf(false) }
 
@@ -139,10 +193,10 @@ fun EmailField(
                 emailTextFocused = it.isFocused
             },
         colors = TextFieldDefaults.textFieldColors(
-            textColor = if (isEmailEmptyError || isEmailInvalidError) {
+            textColor = if (isEmailEmptyError || isEmailInvalidError || isNoUserWithThisEmailError) {
                 MaterialTheme.colorScheme.error
             } else MaterialTheme.colorScheme.onBackground,
-            containerColor = if (isEmailEmptyError || isEmailInvalidError) {
+            containerColor = if (isEmailEmptyError || isEmailInvalidError || isNoUserWithThisEmailError) {
                 MaterialTheme.colorScheme.error.copy(
                     alpha = 0.12f
                 )
@@ -177,7 +231,7 @@ fun EmailField(
                 else MaterialTheme.typography.bodyLarge
             )
         },
-        isError = isEmailEmptyError || isEmailInvalidError,
+        isError = isEmailEmptyError || isEmailInvalidError || isNoUserWithThisEmailError,
         singleLine = true,
         supportingText = {
             Row(
@@ -210,7 +264,8 @@ fun EmailField(
 @Composable
 fun ResetPasswordButton(
     onSendClicked: () -> Unit,
-    sendButtonText: String
+    sendButtonText: String,
+    isLoading: Boolean
 ) {
     Button(
         modifier = Modifier
@@ -222,10 +277,24 @@ fun ResetPasswordButton(
             onSendClicked()
         }
     ) {
-        Text(
-            text = sendButtonText.uppercase(),
-            color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.titleMedium
-        )
+        Box(
+            modifier = Modifier
+                .padding(vertical = 12.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(22.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(
+                    text = sendButtonText.uppercase(),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
     }
 }

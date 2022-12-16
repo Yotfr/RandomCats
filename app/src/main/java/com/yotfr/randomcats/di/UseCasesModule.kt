@@ -20,8 +20,8 @@ class UseCasesModule {
 
     @Provides
     fun provideUseCases(
-       catsRepository: CatsRepository,
-       userRepository: UserRepository
+        catsRepository: CatsRepository,
+        userRepository: UserRepository
     ): CatsUseCases {
         return CatsUseCases(
             getRandomCat = GetRandomCatUseCase(
@@ -58,6 +58,9 @@ class UseCasesModule {
             ),
             signOutUseCase = SignOutUseCase(
                 userRepository = userRepository
+            ),
+            resetPasswordUseCase = ResetPasswordUseCase(
+                userRepository = userRepository
             )
         )
     }
@@ -65,7 +68,7 @@ class UseCasesModule {
     @Provides
     fun provideUserPreferencesUseCase(
         userPreferencesRepository: UserPreferencesRepository
-    ):UserPreferencesUseCases {
+    ): UserPreferencesUseCases {
         return UserPreferencesUseCases(
             getThemeUseCase = GetThemeUseCase(
                 userPreferencesRepository = userPreferencesRepository
@@ -75,5 +78,4 @@ class UseCasesModule {
             )
         )
     }
-
 }

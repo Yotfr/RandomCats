@@ -6,12 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface CatsRepository {
 
-    suspend fun getFromApi(): Flow<Response<Cat,String>>
+    suspend fun getFromApi(): Flow<Response<Cat, String>>
 
-    suspend fun uploadToRemoteDb(cat:Cat, userId: String):Flow<Response<Unit,String>>
+    suspend fun uploadToRemoteDb(cat: Cat, userId: String): Flow<Response<Unit, String>>
 
-    suspend fun getFromRemoteDb(userId: String):Flow<Response<List<Cat>,String>>
+    suspend fun getFromRemoteDb(userId: String): Flow<Response<List<Cat>, String>>
 
-    suspend fun deleteFromRemoteDb(cat:Cat, userId:String)
-
+    suspend fun deleteFromRemoteDb(cat: Cat, userId: String)
 }

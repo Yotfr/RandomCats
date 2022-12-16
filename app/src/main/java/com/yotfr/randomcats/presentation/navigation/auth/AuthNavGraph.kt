@@ -4,11 +4,11 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
+import com.yotfr.randomcats.presentation.screens.resetpassword.ResetPasswordScreen
 import com.yotfr.randomcats.presentation.screens.signin.SignInScreen
 import com.yotfr.randomcats.presentation.screens.signup.SignUpScreen
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
-
 import soup.compose.material.motion.navigation.composable
 import soup.compose.material.motion.navigation.navigation
 
@@ -35,6 +35,9 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                     navController.navigate(RootGraph.HOME) {
                         popUpTo(RootGraph.ROOT)
                     }
+                },
+                toResetPassword = {
+                    navController.navigate(AuthScreenRoutes.ResetPassword.route)
                 }
             )
         }
@@ -53,7 +56,20 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
                 }
             )
         }
+        composable(
+            route = AuthScreenRoutes.ResetPassword.route,
+            enterTransition = {
+                materialSharedAxisXIn(true, 1000, 300)
+            },
+            popExitTransition = {
+                materialSharedAxisXOut(false, 1000, 300)
+            }
+        ) {
+            ResetPasswordScreen(
+                backToSignIn = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 }
-
-

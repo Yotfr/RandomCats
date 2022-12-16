@@ -42,7 +42,7 @@ class CatsRepositoryImpl @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            when(e) {
+            when (e) {
                 is IOException -> {
                     send(
                         Response.Exception(
@@ -64,7 +64,7 @@ class CatsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadToRemoteDb(cat: Cat, userId: String): Flow<Response<Unit, String>> = channelFlow{
+    override suspend fun uploadToRemoteDb(cat: Cat, userId: String): Flow<Response<Unit, String>> = channelFlow {
         withContext(Dispatchers.IO) {
             try {
                 send(Response.Loading)
@@ -84,7 +84,7 @@ class CatsRepositoryImpl @Inject constructor(
     override suspend fun getFromRemoteDb(userId: String): Flow<Response<List<Cat>, String>> =
         withContext(Dispatchers.IO) {
             catsCollectionReference
-                .whereEqualTo("userId",userId)
+                .whereEqualTo("userId", userId)
                 .orderBy("created", Query.Direction.DESCENDING)
                 .snapshotFlow()
                 .map { querySnapshot ->
