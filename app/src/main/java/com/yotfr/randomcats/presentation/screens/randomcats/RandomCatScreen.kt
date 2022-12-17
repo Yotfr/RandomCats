@@ -46,6 +46,8 @@ import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.yotfr.randomcats.R
@@ -112,7 +114,11 @@ fun RandomCatScreen(
                     height = Dimension.fillToConstraints
                     width = Dimension.fillToConstraints
                 },
-            catUrl = state.cat?.url ?: "",
+            request = ImageRequest.Builder(context.applicationContext)
+                .data(state.cat?.url ?: "")
+                .crossfade(true)
+                .diskCachePolicy(CachePolicy.DISABLED)
+                .build(),
             catContentDescription = stringResource(id = R.string.random_cat_image),
             isLoading = state.isCatLoading,
             loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder)
@@ -195,20 +201,17 @@ fun RandomCatScreen(
 @Composable
 fun CatCard(
     modifier: Modifier,
-    catUrl: String,
     catContentDescription: String,
     isLoading: Boolean,
-    loadingPlaceholderPainter: Painter
+    loadingPlaceholderPainter: Painter,
+    request: ImageRequest
 ) {
     ElevatedCard(
         modifier = modifier
     ) {
         SubcomposeAsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(catUrl)
-                .crossfade(true)
-                .build(),
+            model = request,
             contentDescription = catContentDescription,
             contentScale = ContentScale.FillWidth,
             alignment = Alignment.Center

@@ -1,15 +1,14 @@
 package com.yotfr.randomcats.presentation.screens.gridcatlist
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,9 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import coil.disk.DiskCache
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListEvent
@@ -48,6 +50,8 @@ fun GridListScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val event = viewModel.event
+
+    val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -86,7 +90,12 @@ fun GridListScreen(
     ) {
         itemsIndexed(state.cats) { index, cat ->
             GridCell(
-                cat = cat,
+                request = ImageRequest.Builder(context.applicationContext)
+                    .data(cat.url)
+                    .crossfade(true)
+                    .diskCacheKey(cat.url)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .build(),
                 onGridClicked = {
                     viewModel.onEvent(
                         GridCatListEvent.GridCatListItemClicked(
@@ -103,17 +112,14 @@ fun GridListScreen(
 
 @Composable
 fun GridCell(
-    cat: GridCatListModel,
     onGridClicked: () -> Unit,
     catContentDescription: String,
-    loadingPlaceholderPainter: Painter
+    loadingPlaceholderPainter: Painter,
+    request: ImageRequest
 ) {
     SubcomposeAsyncImage(
         modifier = Modifier.fillMaxWidth(),
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(cat.url)
-            .crossfade(true)
-            .build(),
+        model = request,
         contentDescription = catContentDescription,
         contentScale = ContentScale.FillWidth,
         alignment = Alignment.Center
@@ -141,6 +147,11 @@ fun GridCell(
                     onGridClicked()
                 }
             )
+        }
+        if (painterState is AsyncImagePainter.State.Success) {
+            LaunchedEffect(Unit) {
+                Log.d("DATASOURCE", painterState.result.dataSource.toString())
+            }
         }
     }
 }

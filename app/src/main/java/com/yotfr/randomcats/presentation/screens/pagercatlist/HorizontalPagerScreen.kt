@@ -45,6 +45,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -203,7 +204,12 @@ fun HorizontalPagerScreen(
             ) { page ->
                 Page(
                     modifier = Modifier.fillMaxSize(),
-                    catUrl = state.cats[page].url,
+                    request = ImageRequest.Builder(context.applicationContext)
+                        .data(state.cats[page].url)
+                        .crossfade(true)
+                        .diskCacheKey(state.cats[page].url)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .build(),
                     catContentDescription = stringResource(id = R.string.random_cat_image),
                     loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder)
                 )
@@ -215,16 +221,13 @@ fun HorizontalPagerScreen(
 @Composable
 fun Page(
     modifier: Modifier,
-    catUrl: String,
     catContentDescription: String,
-    loadingPlaceholderPainter: Painter
+    loadingPlaceholderPainter: Painter,
+    request: ImageRequest
 ) {
     SubcomposeAsyncImage(
         modifier = modifier,
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(catUrl)
-            .crossfade(true)
-            .build(),
+        model = request,
         contentDescription = catContentDescription,
         contentScale = ContentScale.FillWidth,
         alignment = Alignment.Center
