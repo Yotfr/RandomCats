@@ -25,7 +25,9 @@
     
 
     <string name="create_account">Create Account</string>
+    <string name="enter_username">Please enter username</string>
     <string name="confirm_password">Confirm password</string>
+    <string name="user_name">Username</string>
     <string name="already_have_acc">Already have an account?</string>
     <string name="sign_in">Sign in</string>
     <string name="password_too_short">Please enter at least 6 characters</string>

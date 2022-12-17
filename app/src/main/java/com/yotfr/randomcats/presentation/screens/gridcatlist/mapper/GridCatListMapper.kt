@@ -8,7 +8,6 @@ class GridCatListMapper {
 
     fun fromDomain(domainModel: com.yotfr.randomcats.domain.model.Cat): GridCatListModel {
         return GridCatListModel(
-            id = domainModel.id,
             url = domainModel.url,
             created = domainModel.created,
             createdDateString = SimpleDateFormat("MMM d, yyyy HH:mm", Locale.getDefault()).format(
@@ -19,7 +18,6 @@ class GridCatListMapper {
 
     fun toDomain(uiModel: GridCatListModel): com.yotfr.randomcats.domain.model.Cat {
         return com.yotfr.randomcats.domain.model.Cat(
-            id = uiModel.id,
             url = uiModel.url,
             created = uiModel.created
         )

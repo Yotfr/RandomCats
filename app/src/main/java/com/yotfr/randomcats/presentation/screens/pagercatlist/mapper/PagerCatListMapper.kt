@@ -9,7 +9,6 @@ class PagerCatListMapper {
 
     fun fromDomain(domainModel: Cat): PagerCatListModel {
         return PagerCatListModel(
-            id = domainModel.id,
             url = domainModel.url,
             created = domainModel.created,
             createdDateString = SimpleDateFormat("MMM d, yyyy HH:mm", Locale.getDefault()).format(
@@ -20,7 +19,6 @@ class PagerCatListMapper {
 
     fun toDomain(uiModel: PagerCatListModel): Cat {
         return Cat(
-            id = uiModel.id,
             url = uiModel.url,
             created = uiModel.created
         )

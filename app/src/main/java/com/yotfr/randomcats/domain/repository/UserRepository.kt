@@ -16,7 +16,5 @@ interface UserRepository {
 
     fun signInUser(signInModel: SignInModel): Flow<Response<Unit, String>>
 
-    fun getCurrentUserUid(): String
-
     fun sendResetPasswordLink(resetPasswordModel: ResetPasswordModel): Flow<Response<Unit, String>>
 }

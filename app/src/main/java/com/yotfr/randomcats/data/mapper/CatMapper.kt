@@ -6,12 +6,11 @@ import com.yotfr.randomcats.domain.model.Cat
 
 class CatMapper {
 
-    fun toDomain(response:CatResponse):Cat {
+    fun toDomain(response: CatResponse): Cat {
         return Cat(
-            id = response._id,
             url = Constants.BASE_URL + response.url,
+            // Will be replaced with if the user adds to favorites
             created = 0L
         )
     }
-
 }

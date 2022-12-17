@@ -37,7 +37,8 @@ class SignUpViewModel @Inject constructor(
                         signUpUser(
                             signUpModel = SignUpModel(
                                 email = emailText,
-                                password = passwordText
+                                password = passwordText,
+                                userName = usernameText
                             )
                         )
                     }
@@ -56,6 +57,11 @@ class SignUpViewModel @Inject constructor(
             is SignUpEvent.UpdatePasswordText -> {
                 updatePassword(
                     passwordText = event.newText
+                )
+            }
+            is SignUpEvent.UpdateUserNameText -> {
+                updateUsername(
+                    userNameText = event.newText
                 )
             }
         }
@@ -151,6 +157,30 @@ class SignUpViewModel @Inject constructor(
                     emailText = emailText,
                     isEmailEmptyError = false,
                     isEmailInvalidError = false,
+                    isUserAlreadyExistsException = false
+                )
+            }
+            return@launch
+        }
+    }
+
+    // validate field on changedText
+    private fun updateUsername(userNameText: String) {
+        viewModelScope.launch {
+            if (userNameText.isBlank()) {
+                _state.update {
+                    it.copy(
+                        usernameText = userNameText,
+                        isUserNameEmptyError = true,
+                        isUserAlreadyExistsException = false
+                    )
+                }
+                return@launch
+            }
+            _state.update {
+                it.copy(
+                    usernameText = userNameText,
+                    isUserNameEmptyError = false,
                     isUserAlreadyExistsException = false
                 )
             }
@@ -277,6 +307,15 @@ class SignUpViewModel @Inject constructor(
                 }
                 return false
             }
+            if (emailText.isBlank()) {
+                _state.update {
+                    it.copy(
+                        isUserNameEmptyError = true,
+                        isUserAlreadyExistsException = false
+                    )
+                }
+                return false
+            }
             if (passwordText.length < 6) {
                 _state.update {
                     it.copy(
@@ -299,7 +338,7 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private fun sendEvent(uiEvent:SignUpScreenEvent){
+    private fun sendEvent(uiEvent: SignUpScreenEvent) {
         viewModelScope.launch {
             _event.send(uiEvent)
         }

@@ -7,18 +7,15 @@ class CatFirebaseMapper {
 
     fun toDomain(firebaseModel: CatFirebase): Cat {
         return Cat(
-            id = firebaseModel.id,
             url = firebaseModel.url,
             created = firebaseModel.created
         )
     }
 
-    fun fromDomain(domainModel: Cat, userId: String): CatFirebase {
+    fun fromDomain(domainModel: Cat): CatFirebase {
         return CatFirebase(
-            id = domainModel.id,
             url = domainModel.url,
-            created = domainModel.created,
-            userId = userId
+            created = domainModel.created
         )
     }
 }

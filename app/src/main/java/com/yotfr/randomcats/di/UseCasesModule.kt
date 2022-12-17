@@ -28,16 +28,13 @@ class UseCasesModule {
                 catsRepository = catsRepository
             ),
             uploadCatToRemoteDbUseCase = UploadCatToRemoteDbUseCase(
-                catsRepository = catsRepository,
-                userRepository = userRepository
+                catsRepository = catsRepository
             ),
             getCatsFromRemoteDb = GetCatsFromRemoteDb(
-                catsRepository = catsRepository,
-                userRepository = userRepository
+                catsRepository = catsRepository
             ),
             deleteCatFromRemoteDb = DeleteCatFromRemoteDb(
-                catsRepository = catsRepository,
-                userRepository = userRepository
+                catsRepository = catsRepository
             )
         )
     }

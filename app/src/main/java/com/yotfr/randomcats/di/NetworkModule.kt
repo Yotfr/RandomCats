@@ -1,6 +1,7 @@
 package com.yotfr.randomcats.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.yotfr.randomcats.base.Constants
 import com.yotfr.randomcats.data.data_source.CatsApi
 import dagger.Module
@@ -32,5 +33,9 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun providesFirebaseauth(): FirebaseAuth = FirebaseAuth.getInstance()
+    fun providesFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 }

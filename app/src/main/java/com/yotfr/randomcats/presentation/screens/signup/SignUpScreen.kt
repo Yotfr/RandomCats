@@ -1,15 +1,11 @@
 package com.yotfr.randomcats.presentation.screens.signup
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -66,7 +62,6 @@ fun SignUpScreen(
                                 message = context.resources.getString(R.string.account_successfully_created)
                             )
                         }
-                        backToSignIn()
                     }
                 }
             }
@@ -159,7 +154,18 @@ fun SignUpScreen(
                 isPasswordsNotMatchError = state.isPasswordsNotMatchError,
                 isPasswordTooShortError = state.isPasswordTooShortError,
                 passwordTooShortErrorMessage = stringResource(id = R.string.password_too_short),
-                passwordsNotMatchErrorMessage = stringResource(id = R.string.passwords_do_not_match)
+                passwordsNotMatchErrorMessage = stringResource(id = R.string.passwords_do_not_match),
+                usernameText = state.usernameText,
+                usernameLabelText = stringResource(id = R.string.user_name),
+                isUserNameEmptyError = state.isUserNameEmptyError,
+                userNameEmptyErrorMessage = stringResource(id = R.string.enter_username),
+                onUserNameTextChanged = { newText ->
+                    viewModel.onEvent(
+                        SignUpEvent.UpdateUserNameText(
+                            newText = newText
+                        )
+                    )
+                }
             )
             Spacer(
                 modifier = Modifier
@@ -248,7 +254,12 @@ fun SignUpInputFields(
     emptyPasswordFieldErrorMessage: String,
     invalidEmailErrorMessage: String,
     passwordTooShortErrorMessage: String,
-    passwordsNotMatchErrorMessage: String
+    passwordsNotMatchErrorMessage: String,
+    usernameText: String,
+    usernameLabelText: String,
+    isUserNameEmptyError: Boolean,
+    userNameEmptyErrorMessage: String,
+    onUserNameTextChanged: (text: String) -> Unit
 ) {
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
     var confirmPasswordHidden by rememberSaveable { mutableStateOf(true) }
@@ -256,12 +267,88 @@ fun SignUpInputFields(
     var emailTextFocused by remember { mutableStateOf(false) }
     var passwordTextFocused by remember { mutableStateOf(false) }
     var confirmPasswordTextFocused by remember { mutableStateOf(false) }
+    var userNameTextFocused by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged {
+                    userNameTextFocused = it.isFocused
+                },
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = if (isUserNameEmptyError || isUserAlreadyExistsError) {
+                    MaterialTheme.colorScheme.error
+                } else MaterialTheme.colorScheme.onBackground,
+                containerColor = if (isUserNameEmptyError || isUserAlreadyExistsError) {
+                    MaterialTheme.colorScheme.error.copy(
+                        alpha = 0.12f
+                    )
+                } else if (userNameTextFocused) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(
+                        alpha = 0.3f
+                    )
+                } else Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onBackground.copy(
+                    alpha = 0.7f
+                ),
+                focusedLeadingIconColor = MaterialTheme.colorScheme.onBackground.copy(
+                    alpha = 0.7f
+                ),
+                unfocusedLabelColor = MaterialTheme.colorScheme.onBackground.copy(
+                    alpha = 0.7f
+                ),
+                focusedLabelColor = MaterialTheme.colorScheme.onBackground.copy(
+                    alpha = 0.7f
+                ),
+                errorLeadingIconColor = MaterialTheme.colorScheme.error,
+                errorIndicatorColor = Color.Transparent
+            ),
+            value = usernameText,
+            onValueChange = { onUserNameTextChanged(it) },
+            label = {
+                Text(
+                    text = usernameLabelText,
+                    style = if (userNameTextFocused) MaterialTheme.typography.bodyMedium
+                    else MaterialTheme.typography.bodyLarge
+                )
+            },
+            isError = isUserNameEmptyError || isUserAlreadyExistsError,
+            singleLine = true,
+            supportingText = {
+                Row(
+                    modifier = Modifier.padding(
+                        start = 52.dp
+                    )
+                ) {
+                    if (isUserNameEmptyError) {
+                        Text(text = userNameEmptyErrorMessage)
+                    }
+                }
+            },
+            leadingIcon = {
+                Row(
+                    modifier = Modifier.padding(
+                        start = 32.dp,
+                        end = 8.dp
+                    )
+                ) {
+                    Icon(Icons.Outlined.Person, contentDescription = usernameLabelText)
+                }
+            },
+            shape = RoundedCornerShape(12.dp)
+        )
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp)
+        )
         TextField(
             modifier = Modifier
                 .fillMaxWidth()

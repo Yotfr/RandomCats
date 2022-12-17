@@ -5,5 +5,6 @@ sealed interface Cause {
     object InvalidFirebaseCredentialsException : Cause
     object FirebaseUserAlreadyExistsException : Cause
     object FirebaseEmailBadlyFromattedException : Cause
+    object UserIsNotLoggedIn : Cause
     data class UnknownException(val message: String) : Cause
 }

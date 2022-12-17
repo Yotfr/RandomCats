@@ -174,7 +174,7 @@ fun HorizontalPagerScreen(
                             )
                             saveMediaToStorage(
                                 bitmap = bitMap,
-                                fileId = state.cats[curPage].id,
+                                fileId = state.cats[curPage].url,
                                 context = context
                             )
                         }

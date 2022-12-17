@@ -1,10 +1,10 @@
 package com.yotfr.randomcats.data.repository
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
 import com.yotfr.randomcats.base.snapshotFlow
 import com.yotfr.randomcats.data.data_source.CatsApi
 import com.yotfr.randomcats.data.dto.CatFirebase
@@ -21,16 +21,26 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.lang.Exception
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class CatsRepositoryImpl @Inject constructor(
-    private val catsApi: CatsApi
+    private val catsApi: CatsApi,
+    private val fireStore: FirebaseFirestore,
+    auth: FirebaseAuth
 ) : CatsRepository {
 
     private val catMapper: CatMapper = CatMapper()
     private val catFirebaseMapper: CatFirebaseMapper = CatFirebaseMapper()
 
-    private val catsCollectionReference = Firebase.firestore.collection("cats")
+    // Current logged in user collection of cats
+    private val catsCollectionReference = auth.currentUser?.let {
+        fireStore.collection("users").document(
+            it.uid
+        ).collection("cats")
+    }
 
+    // get random car from api
     override suspend fun getFromApi(): Flow<Response<Cat, String>> = channelFlow {
         try {
             send(Response.Loading)
@@ -57,34 +67,49 @@ class CatsRepositoryImpl @Inject constructor(
                                 message = e.message.toString()
                             )
                         )
-
                     )
                 }
             }
         }
     }
 
-    override suspend fun uploadToRemoteDb(cat: Cat, userId: String): Flow<Response<Unit, String>> = channelFlow {
-        withContext(Dispatchers.IO) {
-            try {
-                send(Response.Loading)
-                catsCollectionReference.add(
-                    catFirebaseMapper.fromDomain(
-                        domainModel = cat,
-                        userId = userId
+    // upload cat to user collection of cats
+    override suspend fun uploadToRemoteDb(cat: Cat): Flow<Response<Unit, String>> =
+        channelFlow {
+            withContext(Dispatchers.IO) {
+                // if catsCollection reference is null, the current user is null
+                // But this shouldn't happen because non authenticated user only have access to auth
+                // graph screens, null check here for the unexpected cases
+                if (catsCollectionReference == null) {
+                    // The user will be redirected to the auth screen
+                    send(
+                        Response.Exception(
+                            cause = Cause.UserIsNotLoggedIn
+                        )
                     )
-                ).await()
-                send(Response.Success(Unit))
-            } catch (e: Exception) {
-                Log.e("uploadError", "error -> ${e.message}")
+                    return@withContext
+                }
+                // Case the user is logged in
+                try {
+                    send(Response.Loading)
+                    // Add doc to fireStore collection
+                    catsCollectionReference.add(
+                        catFirebaseMapper.fromDomain(
+                            domainModel = cat
+                        )
+                    ).await()
+                    send(Response.Success(Unit))
+                } catch (e: Exception) {
+                    // TODO
+                    Log.e("uploadError", "error -> ${e.message}")
+                }
             }
         }
-    }
 
-    override suspend fun getFromRemoteDb(userId: String): Flow<Response<List<Cat>, String>> =
+    override suspend fun getFromRemoteDb(): Flow<Response<List<Cat>, String>> =
         withContext(Dispatchers.IO) {
-            catsCollectionReference
-                .whereEqualTo("userId", userId)
+            // TODO
+            catsCollectionReference!!
                 .orderBy("created", Query.Direction.DESCENDING)
                 .snapshotFlow()
                 .map { querySnapshot ->
@@ -102,25 +127,24 @@ class CatsRepositoryImpl @Inject constructor(
                 }
         }
 
-    override suspend fun deleteFromRemoteDb(cat: Cat, userId: String) = withContext(Dispatchers.IO) {
-        val firebaseCat = catFirebaseMapper.fromDomain(
-            domainModel = cat,
-            userId = userId
-        )
-        val catQuery = catsCollectionReference
-            .whereEqualTo("id", firebaseCat.id)
-            .whereEqualTo("url", firebaseCat.url)
-            .whereEqualTo("created", firebaseCat.created)
-            .get()
-            .await()
-        if (catQuery.documents.isNotEmpty()) {
-            for (document in catQuery) {
-                try {
-                    catsCollectionReference.document(document.id).delete().await()
-                } catch (e: Exception) {
-                    Log.e("uploadError", "error -> ${e.message}")
+    override suspend fun deleteFromRemoteDb(cat: Cat) =
+        withContext(Dispatchers.IO) {
+            val firebaseCat = catFirebaseMapper.fromDomain(
+                domainModel = cat
+            )
+            val catQuery = catsCollectionReference!!
+                .whereEqualTo("url", firebaseCat.url)
+                .whereEqualTo("created", firebaseCat.created)
+                .get()
+                .await()
+            if (catQuery.documents.isNotEmpty()) {
+                for (document in catQuery) {
+                    try {
+                        catsCollectionReference.document(document.id).delete().await()
+                    } catch (e: Exception) {
+                        Log.e("uploadError", "error -> ${e.message}")
+                    }
                 }
             }
         }
-    }
 }

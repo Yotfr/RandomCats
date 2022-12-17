@@ -152,7 +152,7 @@ fun RandomCatScreen(
                         )
                         saveMediaToStorage(
                             bitmap = bitMap,
-                            fileId = state.cat!!.id,
+                            fileId = state.cat!!.url,
                             context = context
                         )
                     }
