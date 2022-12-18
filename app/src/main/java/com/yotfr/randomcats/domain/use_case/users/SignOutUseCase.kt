@@ -9,10 +9,8 @@ import kotlinx.coroutines.withContext
 class SignOutUseCase(
     private val userRepository: UserRepository
 ) {
-
-    suspend operator fun invoke(): Flow<Response<Unit,String>> =
+    suspend operator fun invoke(): Flow<Response<Unit, String>> =
         withContext(Dispatchers.IO) {
             userRepository.signOut()
         }
-
 }

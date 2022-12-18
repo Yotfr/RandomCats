@@ -1,11 +1,10 @@
 package com.yotfr.randomcats.data.repository
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.toObject
-import com.yotfr.randomcats.base.snapshotFlow
+import com.google.firebase.firestore.ktx.snapshots
+import com.google.firebase.firestore.ktx.toObjects
 import com.yotfr.randomcats.data.data_source.CatsApi
 import com.yotfr.randomcats.data.dto.CatFirebase
 import com.yotfr.randomcats.data.mapper.CatFirebaseMapper
@@ -60,6 +59,7 @@ class CatsRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+                // other errors not handled because api sends only Result.OK
                 else -> {
                     send(
                         Response.Exception(
@@ -100,39 +100,73 @@ class CatsRepositoryImpl @Inject constructor(
                     ).await()
                     send(Response.Success(Unit))
                 } catch (e: Exception) {
-                    // TODO
-                    Log.e("uploadError", "error -> ${e.message}")
+                    send(
+                        Response.Exception(
+                            cause = Cause.UnknownException(
+                                message = e.message.toString()
+                            )
+                        )
+                    )
                 }
             }
         }
 
-    override suspend fun getFromRemoteDb(): Flow<Response<List<Cat>, String>> =
+    override suspend fun getFromRemoteDb(): Flow<Response<List<Cat>, String>> = channelFlow {
         withContext(Dispatchers.IO) {
-            // TODO
-            catsCollectionReference!!
+            send(Response.Loading)
+            // if catsCollection reference is null, the current user is null
+            // But this shouldn't happen because non authenticated user only have access to auth
+            // graph screens, null check here for the unexpected cases
+            if (catsCollectionReference == null) {
+                // The user will be redirected to the auth screen
+                send(
+                    Response.Exception(
+                        cause = Cause.UserIsNotLoggedIn
+                    )
+                )
+                return@withContext
+            }
+            // Case the user is logged in
+            catsCollectionReference
                 .orderBy("created", Query.Direction.DESCENDING)
-                .snapshotFlow()
-                .map { querySnapshot ->
-                    Response.Success(
-                        data = querySnapshot.documents.map {
-                            it.toObject<CatFirebase>() ?: throw IllegalArgumentException(
-                                "Document is null"
-                            )
-                        }.map { catFirebase ->
-                            catFirebaseMapper.toDomain(
-                                firebaseModel = catFirebase
-                            )
-                        }
+                .snapshots().map {
+                    it.toObjects<CatFirebase>()
+                }
+                .map { catsFirebase ->
+                    catFirebaseMapper.toDomainList(
+                        initial = catsFirebase
+                    )
+                }.collectLatest { cats ->
+                    send(
+                        Response.Success(
+                            data = cats
+                        )
                     )
                 }
         }
+    }
 
-    override suspend fun deleteFromRemoteDb(cat: Cat) =
+    // delete cat from user cat collection
+    override suspend fun deleteFromRemoteDb(cat: Cat): Flow<Response<Unit, String>> = channelFlow {
         withContext(Dispatchers.IO) {
+            send(Response.Loading)
+            // if catsCollection reference is null, the current user is null
+            // But this shouldn't happen because non authenticated user only have access to auth
+            // graph screens, null check here for the unexpected cases
+            if (catsCollectionReference == null) {
+                // The user will be redirected to the auth screen
+                send(
+                    Response.Exception(
+                        cause = Cause.UserIsNotLoggedIn
+                    )
+                )
+                return@withContext
+            }
+            // Case the user is logged in
             val firebaseCat = catFirebaseMapper.fromDomain(
                 domainModel = cat
             )
-            val catQuery = catsCollectionReference!!
+            val catQuery = catsCollectionReference
                 .whereEqualTo("url", firebaseCat.url)
                 .whereEqualTo("created", firebaseCat.created)
                 .get()
@@ -141,10 +175,18 @@ class CatsRepositoryImpl @Inject constructor(
                 for (document in catQuery) {
                     try {
                         catsCollectionReference.document(document.id).delete().await()
+                        send(
+                            Response.Success(Unit)
+                        )
                     } catch (e: Exception) {
-                        Log.e("uploadError", "error -> ${e.message}")
+                        send(
+                            Response.Exception(
+                                cause = Cause.UnknownException(e.message.toString())
+                            )
+                        )
                     }
                 }
             }
         }
+    }
 }

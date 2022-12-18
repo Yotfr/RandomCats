@@ -6,10 +6,10 @@ import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.users.UserUseCases
 import com.yotfr.randomcats.presentation.screens.settings.event.SettingsEvent
 import com.yotfr.randomcats.presentation.screens.settings.event.SettingsScreenEvent
+import com.yotfr.randomcats.presentation.screens.settings.model.SettingsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,8 +18,15 @@ class SettingsViewModel @Inject constructor(
     private val userUseCases: UserUseCases
 ) : ViewModel() {
 
-    private val _event = Channel<SettingsScreenEvent>()
-    val event = _event.receiveAsFlow()
+    private val _state = MutableStateFlow(SettingsState())
+    val state = _state.asStateFlow()
+
+    private val _uiEvent = Channel<SettingsScreenEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
+    init {
+        getProfileInfo()
+    }
 
     fun onEvent(event: SettingsEvent) {
         when (event) {
@@ -49,13 +56,31 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    private fun getProfileInfo() {
+        viewModelScope.launch {
+            userUseCases.getUserProfileInfoUseCase().collectLatest { response ->
+                when (response) {
+                    is Response.Success -> {
+                        _state.update {
+                            it.copy(
+                                email = response.data.email,
+                                userName = response.data.userName
+                            )
+                        }
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
     private fun navigateToThemeScreen() {
         sendUiEvent(SettingsScreenEvent.NavigateToThemeScreen)
     }
 
     private fun sendUiEvent(uiEvent: SettingsScreenEvent) {
         viewModelScope.launch {
-            _event.send(uiEvent)
+            _uiEvent.send(uiEvent)
         }
     }
 }

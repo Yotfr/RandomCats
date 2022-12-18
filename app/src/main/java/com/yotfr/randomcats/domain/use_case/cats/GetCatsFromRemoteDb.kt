@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 class GetCatsFromRemoteDb(
     private val catsRepository: CatsRepository
 ) {
-
     suspend operator fun invoke(): Flow<Response<List<Cat>, String>> =
         withContext(Dispatchers.IO) {
             catsRepository.getFromRemoteDb()

@@ -36,7 +36,10 @@ fun HomeNavGraph(
             RandomCatScreen()
         }
 
-        catListNavGraph(navController = navController)
+        catListNavGraph(
+            navController = navController,
+            signOut = { signOut() }
+        )
 
         settingsNavGraph(
             navController = navController,

@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 class ResetPasswordUseCase(
     private val userRepository: UserRepository
 ) {
-
     suspend operator fun invoke(resetPasswordModel: ResetPasswordModel): Flow<Response<Unit, String>> =
         withContext(Dispatchers.IO) {
             userRepository.sendResetPasswordLink(

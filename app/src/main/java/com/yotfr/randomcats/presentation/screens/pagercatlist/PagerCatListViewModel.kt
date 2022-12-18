@@ -25,24 +25,26 @@ class PagerCatListViewModel @Inject constructor(
     private val _state = MutableStateFlow(PagerCatListState())
     val state = _state.asStateFlow()
 
-    private val _event = Channel<PagerCatListScreenEvent>()
-    val event = _event.receiveAsFlow()
+    private val _uiEvent = Channel<PagerCatListScreenEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
         getCats()
     }
 
-    fun onEvent(event: PagerCatListEvent){
-        when(event){
-            is PagerCatListEvent.DeleteCatFromFavorite -> {
+    fun onEvent(event: PagerCatListEvent) {
+        when (event) {
+            is PagerCatListEvent.DeleteCatClicked -> {
                 deleteCatFromFavorite(
                     cat = event.cat
                 )
             }
             is PagerCatListEvent.BackArrowPressed -> {
-                sendToUi(PagerCatListScreenEvent.NavigateToGridCatList(
-                    selectedIndex = event.selectedIndex
-                ))
+                sendToUi(
+                    PagerCatListScreenEvent.NavigateToGridCatList(
+                        selectedIndex = event.selectedIndex
+                    )
+                )
             }
         }
     }
@@ -53,7 +55,17 @@ class PagerCatListViewModel @Inject constructor(
                 cat = pagerCatListMapper.toDomain(
                     uiModel = cat
                 )
-            )
+            ).collectLatest { result ->
+                when (result) {
+                    is Response.Success -> {
+                        // navigate back to grid screen when in pager screen nothing to show
+                        if (_state.value.cats.isEmpty()) {
+                            sendToUi(PagerCatListScreenEvent.NavigateBack)
+                        }
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
@@ -65,14 +77,12 @@ class PagerCatListViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 cats = pagerCatListMapper.fromDomainList(
-                                    initialList =  result.data
+                                    initialList = result.data
                                 )
                             )
                         }
                     }
-                    else -> {
-                        //TODO: exception handling
-                    }
+                    else -> {}
                 }
             }
         }
@@ -80,9 +90,7 @@ class PagerCatListViewModel @Inject constructor(
 
     private fun sendToUi(uiEvent: PagerCatListScreenEvent) {
         viewModelScope.launch {
-            _event.send(uiEvent)
+            _uiEvent.send(uiEvent)
         }
     }
-
-
 }

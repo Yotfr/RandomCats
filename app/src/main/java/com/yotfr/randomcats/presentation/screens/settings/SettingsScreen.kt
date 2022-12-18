@@ -1,18 +1,28 @@
 package com.yotfr.randomcats.presentation.screens.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,8 +40,8 @@ fun SettingsScreen(
     navigateToThemeScreen: () -> Unit,
     goBack: () -> Unit
 ) {
-    val event = viewModel.event
-
+    val uiEvent = viewModel.uiEvent
+    val state by viewModel.state.collectAsState()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     Scaffold(
@@ -56,11 +66,9 @@ fun SettingsScreen(
         ) {
             AccountSection(
                 modifier = Modifier.fillMaxWidth(),
-                accountTitleText = stringResource(id = R.string.account),
-                onChangePasswordClicked = { },
-                changePasswordText = stringResource(id = R.string.change_password),
-                changePasswordIcon = Icons.Outlined.Lock,
-                chevronForwardIcon = Icons.Outlined.ChevronRight
+                userNameText = state.userName,
+                emailText = state.email,
+                defaultProfileImagePainter = painterResource(id = R.drawable.cat_log)
             )
             AppearanceSection(
                 modifier = Modifier.fillMaxWidth(),
@@ -81,7 +89,7 @@ fun SettingsScreen(
 
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            event.collect {
+            uiEvent.collect {
                 when (it) {
                     SettingsScreenEvent.NavigateToAuth -> {
                         navigateToAuth()
@@ -125,59 +133,48 @@ fun TopBar(
 @Composable
 fun AccountSection(
     modifier: Modifier,
-    accountTitleText: String,
-    onChangePasswordClicked: () -> Unit,
-    changePasswordText: String,
-    changePasswordIcon: ImageVector,
-    chevronForwardIcon: ImageVector
+    userNameText: String,
+    emailText: String,
+    defaultProfileImagePainter: Painter
 ) {
-    Column(modifier = modifier) {
-        ElevatedCard(
-            shape = RectangleShape,
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                    2.dp
-                )
+    ElevatedCard(
+        modifier = modifier,
+        shape = RectangleShape,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                2.dp
             )
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = defaultProfileImagePainter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(100.dp)
+                    .clip(CircleShape)
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    )
+            )
             Text(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(0.5f)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                text = accountTitleText,
+                    .padding(vertical = 4.dp),
+                text = userNameText,
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                modifier = Modifier
+                    .alpha(0.5f),
+                text = emailText,
                 style = MaterialTheme.typography.titleSmall
             )
-        }
-        ElevatedCard(
-            shape = RectangleShape
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onChangePasswordClicked()
-                    }
-                    .padding(horizontal = 8.dp, vertical = 16.dp)
-            ) {
-                Icon(
-                    imageVector = changePasswordIcon,
-                    contentDescription = changePasswordText
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = changePasswordText,
-                    style = MaterialTheme.typography.titleSmall
-                )
-                Icon(
-                    imageVector = chevronForwardIcon,
-                    contentDescription = changePasswordText
-                )
-            }
         }
     }
 }

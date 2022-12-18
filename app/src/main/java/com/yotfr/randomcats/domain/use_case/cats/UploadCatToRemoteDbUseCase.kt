@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 class UploadCatToRemoteDbUseCase(
     private val catsRepository: CatsRepository
 ) {
-
     suspend operator fun invoke(cat: Cat): Flow<Response<Unit, String>> =
         withContext(Dispatchers.IO) {
             catsRepository.uploadToRemoteDb(cat)

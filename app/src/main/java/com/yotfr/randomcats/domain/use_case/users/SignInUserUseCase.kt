@@ -10,10 +10,8 @@ import kotlinx.coroutines.withContext
 class SignInUserUseCase(
     private val userRepository: UserRepository
 ) {
-
-    suspend operator fun invoke(signInModel: SignInModel): Flow<Response<Unit,String>> =
+    suspend operator fun invoke(signInModel: SignInModel): Flow<Response<Unit, String>> =
         withContext(Dispatchers.IO) {
             userRepository.signInUser(signInModel)
         }
-
 }

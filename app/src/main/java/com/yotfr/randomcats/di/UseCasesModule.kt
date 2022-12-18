@@ -58,6 +58,9 @@ class UseCasesModule {
             ),
             resetPasswordUseCase = ResetPasswordUseCase(
                 userRepository = userRepository
+            ),
+            getUserProfileInfoUseCase = GetUserProfileInfoUseCase(
+                userRepository = userRepository
             )
         )
     }

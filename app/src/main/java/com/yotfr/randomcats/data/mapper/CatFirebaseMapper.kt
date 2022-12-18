@@ -18,4 +18,8 @@ class CatFirebaseMapper {
             created = domainModel.created
         )
     }
+
+    fun toDomainList(initial: List<CatFirebase>): List<Cat> {
+        return initial.map { toDomain(it) }
+    }
 }

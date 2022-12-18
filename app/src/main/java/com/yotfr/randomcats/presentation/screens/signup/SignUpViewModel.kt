@@ -105,7 +105,7 @@ class SignUpViewModel @Inject constructor(
                                 }
                                 sendEvent(SignUpScreenEvent.ShowUserAlreadyExistsSnackbar)
                             }
-                            Cause.FirebaseEmailBadlyFromattedException -> {
+                            Cause.FirebaseEmailBadlyFormattedException -> {
                                 _state.update {
                                     it.copy(
                                         isLoading = false,

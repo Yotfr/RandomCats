@@ -2,12 +2,12 @@ package com.yotfr.randomcats.presentation.screens.gridcatlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListEvent
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListScreenEvent
 import com.yotfr.randomcats.presentation.screens.gridcatlist.mapper.GridCatListMapper
-import com.yotfr.randomcats.presentation.screens.gridcatlist.model.GridCatListModel
 import com.yotfr.randomcats.presentation.screens.gridcatlist.model.GridCatListState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -25,36 +25,22 @@ class GridCatListViewModel @Inject constructor(
     private val _state = MutableStateFlow(GridCatListState())
     val state = _state.asStateFlow()
 
-    private val _event = Channel<GridCatListScreenEvent>()
-    val event = _event.receiveAsFlow()
+    private val _uiEvent = Channel<GridCatListScreenEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
         getCats()
     }
 
-    fun onEvent(event: GridCatListEvent){
-        when(event){
-            is GridCatListEvent.DeleteCatFromFavorite -> {
-                deleteCatFromFavorite(
-                    cat = event.cat
-                )
-            }
+    fun onEvent(event: GridCatListEvent) {
+        when (event) {
             is GridCatListEvent.GridCatListItemClicked -> {
                 sendToUi(
-                    GridCatListScreenEvent.NavigateToPagerScreenCat(
-                    selectedIndex = event.selectedIndex
-                ))
-            }
-        }
-    }
-
-    private fun deleteCatFromFavorite(cat: GridCatListModel) {
-        viewModelScope.launch {
-            catsUseCases.deleteCatFromRemoteDb(
-                cat = gridCatListMapper.toDomain(
-                    uiModel = cat
+                    GridCatListScreenEvent.NavigateToPagerScreen(
+                        selectedIndex = event.selectedIndex
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -62,17 +48,32 @@ class GridCatListViewModel @Inject constructor(
         viewModelScope.launch {
             catsUseCases.getCatsFromRemoteDb().collectLatest { result ->
                 when (result) {
+                    is Response.Loading -> {
+                        _state.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                    }
                     is Response.Success -> {
                         _state.update {
                             it.copy(
                                 cats = gridCatListMapper.fromDomainList(
-                                    initialList =  result.data
-                                )
+                                    initialList = result.data
+                                ),
+                                isLoading = false
                             )
                         }
                     }
-                    else -> {
-                        //TODO: exception handling
+                    // This shouldn't happen because non authenticated user only have access to auth
+                    // graph screens, here for the unexpected cases
+                    is Response.Exception -> {
+                        when (result.cause) {
+                            Cause.UserIsNotLoggedIn -> {
+                                sendToUi(GridCatListScreenEvent.NavigateToAuth)
+                            }
+                            else -> Unit
+                        }
                     }
                 }
             }
@@ -81,9 +82,7 @@ class GridCatListViewModel @Inject constructor(
 
     private fun sendToUi(uiEvent: GridCatListScreenEvent) {
         viewModelScope.launch {
-            _event.send(uiEvent)
+            _uiEvent.send(uiEvent)
         }
     }
-
-
 }

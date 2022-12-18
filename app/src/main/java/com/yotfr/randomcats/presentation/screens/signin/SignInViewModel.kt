@@ -1,6 +1,5 @@
 package com.yotfr.randomcats.presentation.screens.signin
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,12 +26,12 @@ class SignInViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     // uiEvents
-    private val _event = Channel<SignInScreenEvent>()
-    val event = _event.receiveAsFlow()
+    private val _uiEvent = Channel<SignInScreenEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onEvent(event: SignInEvent) {
         when (event) {
-            SignInEvent.SignInUser -> {
+            SignInEvent.SignInClicked -> {
                 _state.value.apply {
                     if (isValidatedBeforeSign()) {
                         signInUser(
@@ -58,7 +57,6 @@ class SignInViewModel @Inject constructor(
             userUseCases.signInUserUseCase(
                 signInModel = signInModel
             ).collectLatest { result ->
-                Log.d("TEST","exce -> $result")
                 when (result) {
                     is Response.Loading -> {
                         _state.update {
@@ -91,13 +89,9 @@ class SignInViewModel @Inject constructor(
                                 }
                                 sendEvent(SignInScreenEvent.ShowInvalidCredentialsError)
                             }
-                            is Cause.UnknownException -> {
-                                Log.d("TEST","exce -> ${result.cause.message}")
-                            }
                             else -> Unit
                         }
                     }
-                    else -> Unit
                 }
             }
         }
@@ -198,7 +192,8 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun sendEvent(uiEvent: SignInScreenEvent) {
-        viewModelScope.launch { _event.send(uiEvent)
+        viewModelScope.launch {
+            _uiEvent.send(uiEvent)
         }
     }
 }

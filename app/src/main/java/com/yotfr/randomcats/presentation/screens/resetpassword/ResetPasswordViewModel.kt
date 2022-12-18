@@ -1,6 +1,5 @@
 package com.yotfr.randomcats.presentation.screens.resetpassword
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,7 +34,7 @@ class ResetPasswordViewModel @Inject constructor(
                     emailText = event.newText
                 )
             }
-            ResetPasswordEvent.SendResetEmail -> {
+            ResetPasswordEvent.ResetEmailClicked -> {
                 if (isValidatedBeforeSign()) {
                     viewModelScope.launch {
                         userUseCases.resetPasswordUseCase(
@@ -61,7 +60,7 @@ class ResetPasswordViewModel @Inject constructor(
                                 }
                                 is Response.Exception -> {
                                     when (response.cause) {
-                                        is Cause.FirebaseEmailBadlyFromattedException -> {
+                                        is Cause.FirebaseEmailBadlyFormattedException -> {
                                             _state.update {
                                                 it.copy(
                                                     isLoading = false,

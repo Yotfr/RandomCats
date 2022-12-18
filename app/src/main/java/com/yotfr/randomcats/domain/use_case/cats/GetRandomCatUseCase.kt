@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 class GetRandomCatUseCase(
     private val catsRepository: CatsRepository
 ) {
-
     suspend operator fun invoke(): Flow<Response<Cat, String>> = withContext(Dispatchers.IO) {
         catsRepository.getFromApi()
     }

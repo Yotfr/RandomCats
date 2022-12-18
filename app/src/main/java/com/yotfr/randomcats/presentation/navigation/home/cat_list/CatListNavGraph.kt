@@ -11,9 +11,13 @@ import com.yotfr.randomcats.presentation.screens.pagercatlist.HorizontalPagerScr
 import soup.compose.material.motion.animation.*
 import soup.compose.material.motion.navigation.composable
 import soup.compose.material.motion.navigation.navigation
+import kotlin.math.sign
 
 @OptIn(ExperimentalAnimationApi::class)
-fun NavGraphBuilder.catListNavGraph(navController: NavHostController) {
+fun NavGraphBuilder.catListNavGraph(
+    navController: NavHostController,
+    signOut: () -> Unit
+) {
     val onBackPressed: (args: String?) -> Unit = {
         navController.previousBackStackEntry
             ?.savedStateHandle
@@ -52,7 +56,10 @@ fun NavGraphBuilder.catListNavGraph(navController: NavHostController) {
                 },
                 selectedIndex = navController.currentBackStackEntry?.savedStateHandle?.get<String>(
                     DETAILS_SELECTED_INDEX_KEY
-                )?.toInt() ?: 0
+                )?.toInt() ?: 0,
+                navigateToAuth = {
+                    signOut()
+                }
             )
         }
         composable(

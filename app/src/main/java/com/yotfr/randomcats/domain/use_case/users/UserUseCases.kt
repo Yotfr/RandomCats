@@ -5,5 +5,6 @@ data class UserUseCases(
     val signInUserUseCase: SignInUserUseCase,
     val checkUserSignUseCase: CheckUserSignUseCase,
     val signOutUseCase: SignOutUseCase,
-    val resetPasswordUseCase: ResetPasswordUseCase
+    val resetPasswordUseCase: ResetPasswordUseCase,
+    val getUserProfileInfoUseCase: GetUserProfileInfoUseCase
 )

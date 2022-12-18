@@ -8,12 +8,11 @@ import kotlinx.coroutines.withContext
 class UpdateThemeUseCase(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-
-    suspend operator fun invoke(theme:Theme) {
+    suspend operator fun invoke(theme: Theme) {
         withContext(Dispatchers.IO) {
-           userPreferencesRepository.updateTheme(
-               theme = theme
-           )
+            userPreferencesRepository.updateTheme(
+                theme = theme
+            )
         }
     }
 }

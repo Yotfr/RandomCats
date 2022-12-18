@@ -26,7 +26,6 @@ class RandomCatViewModel @Inject constructor(
     private val _state = MutableStateFlow(RandomCatState())
     val state = _state.asStateFlow()
 
-
     init {
         getCat()
     }
@@ -48,14 +47,14 @@ class RandomCatViewModel @Inject constructor(
         }
     }
 
-    private fun changePeekingCatLocation(){
+    private fun changePeekingCatLocation() {
         viewModelScope.launch {
             _state.update {
                 it.copy(
                     peekingCatsLocation = PeekingCatsLocations.HIDDEN
                 )
             }
-            delay(Random.nextLong(0,5000))
+            delay(Random.nextLong(0, 5000))
             _state.update {
                 it.copy(
                     peekingCatsLocation = PeekingCatsLocations.values().random()
@@ -73,8 +72,7 @@ class RandomCatViewModel @Inject constructor(
                     "Trying to upload null value"
                 )
             ).collectLatest { result ->
-                when(result) {
-
+                when (result) {
                     is Response.Loading -> {
                         _state.update {
                             it.copy(
@@ -98,7 +96,7 @@ class RandomCatViewModel @Inject constructor(
     private fun getCat() {
         viewModelScope.launch {
             catsUseCases.getRandomCat().collectLatest { result ->
-                when(result) {
+                when (result) {
                     is Response.Loading -> {
                         _state.update {
                             it.copy(
@@ -127,7 +125,7 @@ class RandomCatViewModel @Inject constructor(
         }
     }
 
-    private fun getCurrentDay():Long {
+    private fun getCurrentDay(): Long {
         return Calendar.getInstance(Locale.getDefault()).timeInMillis
     }
 }

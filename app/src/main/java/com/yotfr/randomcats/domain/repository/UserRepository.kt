@@ -1,9 +1,6 @@
 package com.yotfr.randomcats.domain.repository
 
-import com.yotfr.randomcats.domain.model.ResetPasswordModel
-import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.model.SignInModel
-import com.yotfr.randomcats.domain.model.SignUpModel
+import com.yotfr.randomcats.domain.model.*
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
@@ -17,4 +14,6 @@ interface UserRepository {
     fun signInUser(signInModel: SignInModel): Flow<Response<Unit, String>>
 
     fun sendResetPasswordLink(resetPasswordModel: ResetPasswordModel): Flow<Response<Unit, String>>
+
+    fun getUserProfileInfo(): Flow<Response<User, String>>
 }

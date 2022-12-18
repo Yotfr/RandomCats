@@ -6,40 +6,22 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import coil.compose.AsyncImagePainter
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.SubcomposeAsyncImageContent
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -71,16 +53,14 @@ fun HorizontalPagerScreen(
     onBackPressed: (selectedIndex: Int) -> Unit,
     selectedIndex: Int
 ) {
+    val state by viewModel.state.collectAsState()
+    val uiEvent = viewModel.uiEvent
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     val permissionState = rememberPermissionState(
         permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
-
-    val context = LocalContext.current
-
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    val coroutineScope = rememberCoroutineScope()
-
     fun hasWriteStoragePermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             true
@@ -108,54 +88,51 @@ fun HorizontalPagerScreen(
         }
     }
 
-    val state by viewModel.state.collectAsState()
-
-    val event = viewModel.event
-
     val pagerState = rememberPagerState(
         initialPage = selectedIndex
     )
-
-    var curPage by remember {
-        mutableStateOf(selectedIndex)
-    }
-
+    // date currently selected page image
     var date by remember {
         mutableStateOf("")
     }
-
+    // time currently selected page image
     var time by remember {
         mutableStateOf("")
     }
-
+    // top and bottom bar disabled / enabled on page image click
     var barsVisibility by remember {
         mutableStateOf(false)
     }
-
+    // bitmap currently selected page image
     var bitmap by remember {
         mutableStateOf<Bitmap?>(null)
     }
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
+    // collecting uiEvents
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            event.collect { uiEvent ->
+            uiEvent.collect { uiEvent ->
                 when (uiEvent) {
                     is PagerCatListScreenEvent.NavigateToGridCatList -> {
                         onBackPressed(uiEvent.selectedIndex)
+                    }
+                    // hardcoded selected index because if this event is triggered cats list is empty
+                    PagerCatListScreenEvent.NavigateBack -> {
+                        onBackPressed(0)
                     }
                 }
             }
         }
     }
 
-    LaunchedEffect(pagerState, state) {
+    // change top app bar date and time on page change
+    LaunchedEffect(pagerState.currentPage) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             if (state.cats.isNotEmpty()) {
                 date = state.cats[page].createdDateString.substringBeforeLast(" ")
                 time = state.cats[page].createdDateString.substringAfterLast(" ")
-                curPage = page
             }
         }
     }
@@ -163,21 +140,21 @@ fun HorizontalPagerScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            TopBar(
+            HorizontalPagerTopBar(
                 isVisible = barsVisibility,
                 date = date,
                 time = time,
                 onBackPressed = {
                     viewModel.onEvent(
                         PagerCatListEvent.BackArrowPressed(
-                            selectedIndex = curPage
+                            selectedIndex = pagerState.currentPage
                         )
                     )
                 }
             )
         },
         bottomBar = {
-            BottomBar(
+            HorizontalPagerBottomBar(
                 isVisible = barsVisibility,
                 onShareClicked = {
                     coroutineScope.launch {
@@ -214,8 +191,8 @@ fun HorizontalPagerScreen(
                 },
                 onDeleteClicked = {
                     viewModel.onEvent(
-                        PagerCatListEvent.DeleteCatFromFavorite(
-                            cat = state.cats[curPage]
+                        PagerCatListEvent.DeleteCatClicked(
+                            cat = state.cats[pagerState.currentPage]
                         )
                     )
                 }
@@ -250,150 +227,7 @@ fun HorizontalPagerScreen(
     )
 }
 
-@Composable
-fun Page(
-    modifier: Modifier,
-    catContentDescription: String,
-    loadingPlaceholderPainter: Painter,
-    request: ImageRequest,
-    updateBitmap: (bitmap: Bitmap) -> Unit
-) {
-    SubcomposeAsyncImage(
-        modifier = modifier,
-        model = request,
-        contentDescription = catContentDescription,
-        contentScale = ContentScale.FillWidth,
-        alignment = Alignment.Center
-    ) {
-        val painterState = painter.state
-        if (painterState is AsyncImagePainter.State.Loading ||
-            painterState is AsyncImagePainter.State.Error
-        ) {
-            Image(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(64.dp)
-                    .alpha(0.5f),
-                painter = loadingPlaceholderPainter,
-                contentDescription = "",
-                contentScale = ContentScale.FillWidth,
-                alignment = Alignment.Center,
-                colorFilter = ColorFilter.tint(
-                    color = Color.Gray
-                )
-            )
-        } else {
-            SubcomposeAsyncImageContent()
-        }
-        SideEffect {
-            if (painterState is AsyncImagePainter.State.Success) {
-                val bitmap = (painterState.result.drawable as BitmapDrawable).bitmap
-                updateBitmap(bitmap)
-            }
-        }
-    }
-}
-
-@Composable
-fun BottomBar(
-    isVisible: Boolean,
-    onShareClicked: () -> Unit,
-    onDownloadClicked: () -> Unit,
-    onDeleteClicked: () -> Unit
-) {
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = slideInVertically { it },
-        exit = slideOutVertically { it }
-    ) {
-        BottomAppBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                IconButton(
-                    modifier = Modifier.size(24.dp),
-                    onClick = {
-                        Log.d("TEST", "clicked")
-                        onDownloadClicked()
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_download),
-                        contentDescription = stringResource(id = R.string.save_to_gallery)
-                    )
-                }
-                IconButton(
-                    modifier = Modifier.size(24.dp),
-                    onClick = { onShareClicked() }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_share),
-                        contentDescription = stringResource(id = R.string.share)
-                    )
-                }
-                IconButton(
-                    modifier = Modifier.size(24.dp),
-                    onClick = { onDeleteClicked() }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_favorite_minus),
-                        contentDescription = stringResource(id = R.string.delete_from_favorite)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBar(
-    isVisible: Boolean,
-    date: String,
-    time: String,
-    onBackPressed: () -> Unit
-) {
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = slideInVertically { -it },
-        exit = slideOutVertically { -it }
-    ) {
-        TopAppBar(
-            modifier = Modifier.fillMaxWidth(),
-            navigationIcon = {
-                IconButton(onClick = {
-                    onBackPressed()
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Localized description"
-                    )
-                }
-            },
-            title = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(text = date)
-                    Text(text = time)
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                    1.dp
-                )
-            )
-        )
-    }
-}
-
 private fun saveMediaToStorage(bitmap: Bitmap, context: Context): Boolean {
-    Log.d("TEST", "bm -> $bitmap")
-
     val imageCollection = sdk29AndUp {
         MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
     } ?: MediaStore.Images.Media.EXTERNAL_CONTENT_URI
