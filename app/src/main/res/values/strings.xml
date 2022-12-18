@@ -59,4 +59,8 @@
     <string name="no_user_with_this_email">No user with this email address has been found</string>
     <string name="check_email">Check your email for reset link</string>
 
+    <string name="saved_to_gallery">Image saved to gallery</string>
+    <string name="permission_request_rationale">Storage permission required for this feature to be available. Please grant the permission</string>
+    <string name="permission_permanently_denied">Storage permission was permanently denied. You can enable it in the app settings</string>
+
 </resources>

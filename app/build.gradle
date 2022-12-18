@@ -64,6 +64,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-pager:0.28.0"
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
     implementation "com.google.accompanist:accompanist-placeholder:0.28.0"
+    implementation "com.google.accompanist:accompanist-permissions:0.28.0"
 
     //material motion library
     implementation "io.github.fornewid:material-motion-compose-navigation:0.10.3"

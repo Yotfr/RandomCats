@@ -5,15 +5,12 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -36,50 +33,79 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import coil.request.SuccessResult
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.yotfr.randomcats.R
+import com.yotfr.randomcats.base.isPermanentlyDenied
+import com.yotfr.randomcats.base.sdk29AndUp
 import com.yotfr.randomcats.presentation.screens.pagercatlist.event.PagerCatListEvent
 import com.yotfr.randomcats.presentation.screens.pagercatlist.event.PagerCatListScreenEvent
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
+import java.io.IOException
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalPagerApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPermissionsApi::class
+)
 @Composable
 fun HorizontalPagerScreen(
     viewModel: PagerCatListViewModel = hiltViewModel(),
     onBackPressed: (selectedIndex: Int) -> Unit,
     selectedIndex: Int
 ) {
+    val permissionState = rememberPermissionState(
+        permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+
     val context = LocalContext.current
-    var hasWriteStoragePermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasWriteStoragePermission = isGranted
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    fun hasWriteStoragePermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            true
+        } else when {
+            permissionState.status.isGranted -> {
+                true
+            }
+            permissionState.status.shouldShowRationale -> {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.resources.getString(R.string.permission_request_rationale)
+                    )
+                }
+                false
+            }
+            permissionState.isPermanentlyDenied() -> {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.resources.getString(R.string.permission_permanently_denied)
+                    )
+                }
+                false
+            }
+            else -> false
+        }
     }
 
     val state by viewModel.state.collectAsState()
@@ -94,8 +120,6 @@ fun HorizontalPagerScreen(
         mutableStateOf(selectedIndex)
     }
 
-    val coroutineScope = rememberCoroutineScope()
-
     var date by remember {
         mutableStateOf("")
     }
@@ -106,6 +130,10 @@ fun HorizontalPagerScreen(
 
     var barsVisibility by remember {
         mutableStateOf(false)
+    }
+
+    var bitmap by remember {
+        mutableStateOf<Bitmap?>(null)
     }
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -133,6 +161,7 @@ fun HorizontalPagerScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopBar(
                 isVisible = barsVisibility,
@@ -152,35 +181,35 @@ fun HorizontalPagerScreen(
                 isVisible = barsVisibility,
                 onShareClicked = {
                     coroutineScope.launch {
-                        val bitMap = getBitmapFromUrl(
-                            url = state.cats[curPage].url,
-                            context = context
-                        )
-                        val uri = getImageToShare(
-                            bitmap = bitMap,
-                            context = context
-                        )
-                        shareImage(
-                            uri = uri,
-                            context = context
-                        )
-                    }
-                },
-                onDownloadClicked = {
-                    if (hasWriteStoragePermission) {
-                        coroutineScope.launch {
-                            val bitMap = getBitmapFromUrl(
-                                url = state.cats[curPage].url,
+                        bitmap?.let {
+                            val uri = getImageToShare(
+                                bitmap = it,
                                 context = context
                             )
-                            saveMediaToStorage(
-                                bitmap = bitMap,
-                                fileId = state.cats[curPage].url,
+                            shareImage(
+                                uri = uri,
                                 context = context
                             )
                         }
+                    }
+                },
+                onDownloadClicked = {
+                    if (hasWriteStoragePermission()) {
+                        coroutineScope.launch {
+                            bitmap?.let {
+                                val isSuccess = saveMediaToStorage(
+                                    bitmap = it,
+                                    context = context
+                                )
+                                if (isSuccess) {
+                                    snackbarHostState.showSnackbar(
+                                        message = context.resources.getString(R.string.saved_to_gallery)
+                                    )
+                                }
+                            }
+                        }
                     } else {
-                        permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        permissionState.launchPermissionRequest()
                     }
                 },
                 onDeleteClicked = {
@@ -211,7 +240,10 @@ fun HorizontalPagerScreen(
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .build(),
                     catContentDescription = stringResource(id = R.string.random_cat_image),
-                    loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder)
+                    loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder),
+                    updateBitmap = {
+                        bitmap = it
+                    }
                 )
             }
         }
@@ -223,7 +255,8 @@ fun Page(
     modifier: Modifier,
     catContentDescription: String,
     loadingPlaceholderPainter: Painter,
-    request: ImageRequest
+    request: ImageRequest,
+    updateBitmap: (bitmap: Bitmap) -> Unit
 ) {
     SubcomposeAsyncImage(
         modifier = modifier,
@@ -252,6 +285,12 @@ fun Page(
         } else {
             SubcomposeAsyncImageContent()
         }
+        SideEffect {
+            if (painterState is AsyncImagePainter.State.Success) {
+                val bitmap = (painterState.result.drawable as BitmapDrawable).bitmap
+                updateBitmap(bitmap)
+            }
+        }
     }
 }
 
@@ -268,7 +307,8 @@ fun BottomBar(
         exit = slideOutVertically { it }
     ) {
         BottomAppBar(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(72.dp)
         ) {
             Row(
@@ -278,7 +318,10 @@ fun BottomBar(
             ) {
                 IconButton(
                     modifier = Modifier.size(24.dp),
-                    onClick = { onDownloadClicked() }
+                    onClick = {
+                        Log.d("TEST", "clicked")
+                        onDownloadClicked()
+                    }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_download),
@@ -348,44 +391,49 @@ fun TopBar(
     }
 }
 
-private fun saveMediaToStorage(bitmap: Bitmap, fileId: String, context: Context) {
-    var fos: OutputStream? = null
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        context.contentResolver?.also { contentResolver ->
-            val contentValues = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, fileId)
-                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-            }
-            val imageUri: Uri? =
-                contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            fos = imageUri?.let { contentResolver.openOutputStream(it) }
-        }
-    } else {
-        val imagesDir =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        val image = File(imagesDir, fileId)
-        fos = FileOutputStream(image)
+private fun saveMediaToStorage(bitmap: Bitmap, context: Context): Boolean {
+    Log.d("TEST", "bm -> $bitmap")
+
+    val imageCollection = sdk29AndUp {
+        MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+    } ?: MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.WIDTH, bitmap.width)
+        put(MediaStore.Images.Media.HEIGHT, bitmap.height)
     }
-    fos?.use {
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+
+    return try {
+        context.contentResolver.insert(imageCollection, contentValues)?.also { uri ->
+            context.contentResolver.openOutputStream(uri).use { outputStream ->
+                if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
+                    throw IOException("Couldn't save bitmap")
+                }
+            }
+        } ?: throw IOException("Couldn't create MediaStore entry")
+        true
+    } catch (e: IOException) {
+        e.printStackTrace()
+        false
     }
 }
 
 private fun shareImage(uri: Uri, context: Context) {
-    val intent = Intent(Intent.ACTION_SEND)
-    intent.putExtra(Intent.EXTRA_STREAM, uri)
-    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    intent.type = "image/*"
-    context.startActivity(Intent.createChooser(intent, "Share image"))
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        putExtra(Intent.EXTRA_STREAM, uri)
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        type = "image/*"
+    }
+    context.startActivity(Intent.createChooser(intent, null))
 }
 
 private fun getImageToShare(bitmap: Bitmap, context: Context): Uri {
-    val folder = File(context.cacheDir, "images")
+    val imageFolder = File(context.cacheDir, "images")
     var uri: Uri? = null
     try {
-        folder.mkdirs()
-        val file = File(folder, "shared_image.jpg")
+        imageFolder.mkdirs()
+        val file = File(imageFolder, "shared_image.jpg")
         val fileOutputStream = FileOutputStream(file)
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
 
@@ -393,17 +441,8 @@ private fun getImageToShare(bitmap: Bitmap, context: Context): Uri {
         fileOutputStream.close()
 
         uri = FileProvider.getUriForFile(context, "com.yotfr.randomcats", file)
-    } catch (e: java.lang.Exception) {
+    } catch (e: Exception) {
         e.printStackTrace()
     }
-    return uri ?: throw Exception("Not found uri")
-}
-
-private suspend fun getBitmapFromUrl(url: String, context: Context): Bitmap {
-    val loading = ImageLoader(context = context)
-    val request = ImageRequest.Builder(context)
-        .data(url)
-        .build()
-    val result = (loading.execute(request) as SuccessResult).drawable
-    return (result as BitmapDrawable).bitmap
+    return uri ?: throw IOException("Not found uri")
 }

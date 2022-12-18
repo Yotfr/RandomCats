@@ -1,5 +1,10 @@
 package com.yotfr.randomcats.base
 
+import android.os.Build
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
@@ -12,10 +17,22 @@ fun Query.snapshotFlow(): Flow<QuerySnapshot> = callbackFlow {
             close()
             return@addSnapshotListener
         }
-        if (value != null)
+        if (value != null) {
             trySend(value)
+        }
     }
     awaitClose {
         listenerRegistration.remove()
     }
+}
+
+inline fun <T> sdk29AndUp(onSdk29: () -> T): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        onSdk29()
+    } else null
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+fun PermissionState.isPermanentlyDenied(): Boolean {
+    return !status.shouldShowRationale && !status.isGranted
 }
