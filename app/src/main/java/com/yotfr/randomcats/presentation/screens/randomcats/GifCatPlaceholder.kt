@@ -3,8 +3,10 @@ package com.yotfr.randomcats.presentation.screens.randomcats
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.Image
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
@@ -31,7 +33,7 @@ fun GifCatPlaceholder(
     Image(
         painter = rememberAsyncImagePainter(
             ImageRequest.Builder(context)
-                .data(data = R.drawable.cat_gif_placeholder)
+                .data(data = R.drawable.gif_loading_cat)
                 .apply(
                     block = {
                         size(Size.ORIGINAL)
@@ -42,6 +44,9 @@ fun GifCatPlaceholder(
         ),
         contentDescription = null,
         modifier = modifier,
-        contentScale = ContentScale.FillWidth
+        contentScale = ContentScale.FillWidth,
+        colorFilter = ColorFilter.tint(
+            color = MaterialTheme.colorScheme.primary
+        )
     )
 }

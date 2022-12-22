@@ -63,7 +63,7 @@ fun SignInScreen(
                 .fillMaxSize()
                 .padding(it)
                 .padding(
-                    top = dimensionResource(id = R.dimen.small_padding),
+                    top = dimensionResource(id = R.dimen.large_padding),
                     start = dimensionResource(id = R.dimen.large_padding),
                     end = dimensionResource(id = R.dimen.large_padding)
                 ),
@@ -74,7 +74,7 @@ fun SignInScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                imageResource = painterResource(id = R.drawable.cat_log)
+                imageResource = painterResource(id = R.drawable.cat_logggg)
             )
             Spacer(
                 modifier = Modifier
