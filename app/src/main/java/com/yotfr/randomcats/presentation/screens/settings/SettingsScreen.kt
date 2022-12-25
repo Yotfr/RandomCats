@@ -137,45 +137,34 @@ fun AccountSection(
     emailText: String,
     defaultProfileImagePainter: Painter
 ) {
-    ElevatedCard(
-        modifier = modifier,
-        shape = RectangleShape,
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                2.dp
-            )
-        )
+    Column(
+        modifier = modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = defaultProfileImagePainter,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(100.dp)
-                    .clip(CircleShape)
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape
-                    )
-            )
-            Text(
-                modifier = Modifier
-                    .padding(vertical = 4.dp),
-                text = userNameText,
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                modifier = Modifier
-                    .alpha(0.5f),
-                text = emailText,
-                style = MaterialTheme.typography.titleSmall
-            )
-        }
+        Image(
+            painter = defaultProfileImagePainter,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(100.dp)
+                .clip(CircleShape)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = CircleShape
+                )
+        )
+        Text(
+            modifier = Modifier
+                .padding(vertical = 4.dp),
+            text = userNameText,
+            style = MaterialTheme.typography.titleLarge
+        )
+        Text(
+            modifier = Modifier
+                .alpha(0.5f),
+            text = emailText,
+            style = MaterialTheme.typography.titleSmall
+        )
     }
 }
 

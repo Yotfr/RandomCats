@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -108,6 +109,13 @@ fun HorizontalPagerScreen(
         mutableStateOf<Bitmap?>(null)
     }
 
+    /**
+     * Contains index of page currently displayed by the pager, because [pagerState] doesn't seem
+     * to work properly in this case */
+    var curPage by remember {
+        mutableStateOf(0)
+    }
+
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     // collecting uiEvents
@@ -118,7 +126,7 @@ fun HorizontalPagerScreen(
                     is PagerCatListScreenEvent.NavigateToGridCatList -> {
                         onBackPressed(uiEvent.selectedIndex)
                     }
-                    // hardcoded selected index because if this event is triggered cats list is empty
+                    // hardcoded selected index because if this is triggered cats list is empty
                     PagerCatListScreenEvent.NavigateBack -> {
                         onBackPressed(0)
                     }
@@ -128,11 +136,13 @@ fun HorizontalPagerScreen(
     }
 
     // change top app bar date and time on page change
-    LaunchedEffect(pagerState.currentPage) {
+    LaunchedEffect(pagerState.currentPage, state) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             if (state.cats.isNotEmpty()) {
+                curPage = page
                 date = state.cats[page].createdDateString.substringBeforeLast(" ")
                 time = state.cats[page].createdDateString.substringAfterLast(" ")
+                Log.v("HorizontalPagerScreen","page: $page date: $date time: $time")
             }
         }
     }
@@ -147,7 +157,7 @@ fun HorizontalPagerScreen(
                 onBackPressed = {
                     viewModel.onEvent(
                         PagerCatListEvent.BackArrowPressed(
-                            selectedIndex = pagerState.currentPage
+                            selectedIndex = curPage
                         )
                     )
                 }
@@ -192,7 +202,7 @@ fun HorizontalPagerScreen(
                 onDeleteClicked = {
                     viewModel.onEvent(
                         PagerCatListEvent.DeleteCatClicked(
-                            cat = state.cats[pagerState.currentPage]
+                            cat = state.cats[curPage]
                         )
                     )
                 }
