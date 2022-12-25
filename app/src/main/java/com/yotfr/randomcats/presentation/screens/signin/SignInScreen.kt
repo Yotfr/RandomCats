@@ -7,7 +7,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -17,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.signin.event.SignInEvent
 import com.yotfr.randomcats.presentation.screens.signin.event.SignInScreenEvent
+import com.yotfr.randomcats.presentation.spacing
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,9 +63,9 @@ fun SignInScreen(
                 .fillMaxSize()
                 .padding(it)
                 .padding(
-                    top = dimensionResource(id = R.dimen.large_padding),
-                    start = dimensionResource(id = R.dimen.large_padding),
-                    end = dimensionResource(id = R.dimen.large_padding)
+                    top = MaterialTheme.spacing.large,
+                    start = MaterialTheme.spacing.large,
+                    end = MaterialTheme.spacing.small
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
@@ -79,19 +79,19 @@ fun SignInScreen(
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(MaterialTheme.spacing.large)
             )
             LoginTitle(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
+                    .padding(horizontal = MaterialTheme.spacing.large),
                 titleText = stringResource(id = R.string.login),
                 subTitleText = stringResource(id = R.string.fill_input_below)
             )
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(MaterialTheme.spacing.large)
             )
             SignInInputFields(
                 modifier = Modifier
@@ -127,7 +127,7 @@ fun SignInScreen(
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(MaterialTheme.spacing.large)
             )
             LoginButton(
                 modifier = Modifier.wrapContentSize(),

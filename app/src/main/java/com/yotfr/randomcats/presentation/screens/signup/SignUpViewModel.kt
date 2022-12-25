@@ -31,7 +31,7 @@ class SignUpViewModel @Inject constructor(
 
     fun onEvent(event: SignUpEvent) {
         when (event) {
-            is SignUpEvent.SignUpUser -> {
+            is SignUpEvent.SignUpClicked -> {
                 _state.value.apply {
                     if (isValidatedBeforeCreateUser()) {
                         signUpUser(

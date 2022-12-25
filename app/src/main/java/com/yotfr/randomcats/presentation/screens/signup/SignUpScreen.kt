@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.signup.event.SignUpEvent
 import com.yotfr.randomcats.presentation.screens.signup.event.SignUpScreenEvent
+import com.yotfr.randomcats.presentation.spacing
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,8 +86,8 @@ fun SignUpScreen(
                 .fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
-                    start = dimensionResource(id = R.dimen.large_padding),
-                    end = dimensionResource(id = R.dimen.large_padding)
+                    start = MaterialTheme.spacing.large,
+                    end = MaterialTheme.spacing.large
                 )
                 .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -94,7 +95,7 @@ fun SignUpScreen(
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(16.dp)
+                    .height(MaterialTheme.spacing.medium)
             )
             SignUpTitle(
                 modifier = Modifier.fillMaxWidth(),
@@ -104,7 +105,7 @@ fun SignUpScreen(
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(MaterialTheme.spacing.large)
             )
             SignUpInputFields(
                 modifier = Modifier.fillMaxWidth(),
@@ -163,15 +164,15 @@ fun SignUpScreen(
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(MaterialTheme.spacing.large)
             )
             SignUpButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 64.dp),
+                    .padding(horizontal = MaterialTheme.spacing.extraLarge),
                 signUpButtonText = stringResource(id = R.string.sign_up),
                 onSignUpClicked = {
-                    viewModel.onEvent(SignUpEvent.SignUpUser)
+                    viewModel.onEvent(SignUpEvent.SignUpClicked)
                 },
                 isLoading = state.isLoading
             )

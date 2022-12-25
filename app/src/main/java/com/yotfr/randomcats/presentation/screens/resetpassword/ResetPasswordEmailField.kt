@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.yotfr.randomcats.presentation.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,8 +91,8 @@ fun ResetPasswordEmailField(
         leadingIcon = {
             Row(
                 modifier = Modifier.padding(
-                    start = 32.dp,
-                    end = 8.dp
+                    start = MaterialTheme.spacing.large,
+                    end = MaterialTheme.spacing.small
                 )
             ) {
                 Icon(Icons.Outlined.Email, contentDescription = emailLabelText)

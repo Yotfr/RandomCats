@@ -7,20 +7,13 @@ import java.util.*
 
 class GridCatListMapper {
 
-    fun fromDomain(domainModel: Cat): GridCatListModel {
+    private fun fromDomain(domainModel: Cat): GridCatListModel {
         return GridCatListModel(
             url = domainModel.url,
             created = domainModel.created,
             createdDateString = SimpleDateFormat("MMM d, yyyy HH:mm", Locale.getDefault()).format(
                 domainModel.created
             )
-        )
-    }
-
-    fun toDomain(uiModel: GridCatListModel): Cat {
-        return Cat(
-            url = uiModel.url,
-            created = uiModel.created
         )
     }
 

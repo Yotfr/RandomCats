@@ -2,6 +2,7 @@ package com.yotfr.randomcats.presentation.screens.gridcatlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yotfr.randomcats.domain.model.Cat
 import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
@@ -49,34 +50,48 @@ class GridCatListViewModel @Inject constructor(
             catsUseCases.getCatsFromRemoteDb().collectLatest { result ->
                 when (result) {
                     is Response.Loading -> {
-                        _state.update {
-                            it.copy(
-                                isLoading = true
-                            )
-                        }
+                        processLoadingState()
                     }
                     is Response.Success -> {
-                        _state.update {
-                            it.copy(
-                                cats = gridCatListMapper.fromDomainList(
-                                    initialList = result.data
-                                ),
-                                isLoading = false
-                            )
-                        }
+                        processSuccessState(result)
                     }
-                    // This shouldn't happen because non authenticated user only have access to auth
-                    // graph screens, here for the unexpected cases
+                    /**
+                     * This shouldn't happen because non authenticated user only have access to auth
+                     * graph screens, here for the unexpected cases
+                     */
                     is Response.Exception -> {
-                        when (result.cause) {
-                            Cause.UserIsNotLoggedIn -> {
-                                sendToUi(GridCatListScreenEvent.NavigateToAuth)
-                            }
-                            else -> Unit
-                        }
+                        processErrorState(result)
                     }
                 }
             }
+        }
+    }
+
+    private fun processErrorState(result: Response.Exception) {
+        when (result.cause) {
+            Cause.UserIsNotLoggedIn -> {
+                sendToUi(GridCatListScreenEvent.NavigateToAuth)
+            }
+            else -> Unit
+        }
+    }
+
+    private fun processSuccessState(result: Response.Success<List<Cat>>) {
+        _state.update {
+            it.copy(
+                cats = gridCatListMapper.fromDomainList(
+                    initialList = result.data
+                ),
+                isLoading = false
+            )
+        }
+    }
+
+    private fun processLoadingState() {
+        _state.update {
+            it.copy(
+                isLoading = true
+            )
         }
     }
 

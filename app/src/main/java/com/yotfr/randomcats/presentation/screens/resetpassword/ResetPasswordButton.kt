@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.yotfr.randomcats.presentation.spacing
 
 @Composable
 fun ResetPasswordButton(
@@ -23,7 +24,7 @@ fun ResetPasswordButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = 64.dp
+                horizontal = MaterialTheme.spacing.extraLarge
             ),
         onClick = {
             onSendClicked()
@@ -31,7 +32,7 @@ fun ResetPasswordButton(
     ) {
         Box(
             modifier = Modifier
-                .padding(vertical = 12.dp)
+                .padding(vertical = MaterialTheme.spacing.small)
                 .align(Alignment.CenterVertically)
         ) {
             if (isLoading) {

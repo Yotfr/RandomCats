@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.yotfr.randomcats.presentation.spacing
 
 @Composable
 fun SignUpButton(
@@ -27,7 +28,7 @@ fun SignUpButton(
     ) {
         Box(
             modifier = Modifier
-                .padding(vertical = 12.dp)
+                .padding(vertical = MaterialTheme.spacing.small)
                 .align(Alignment.CenterVertically)
         ) {
             if (isLoading) {

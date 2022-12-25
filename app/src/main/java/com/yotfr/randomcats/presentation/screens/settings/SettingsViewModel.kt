@@ -30,7 +30,7 @@ class SettingsViewModel @Inject constructor(
 
     fun onEvent(event: SettingsEvent) {
         when (event) {
-            SettingsEvent.SignOut -> {
+            SettingsEvent.SignOutPressed -> {
                 signOut()
             }
             SettingsEvent.ThemePressed -> {

@@ -34,6 +34,7 @@ import com.yotfr.randomcats.R
 import com.yotfr.randomcats.base.isPermanentlyDenied
 import com.yotfr.randomcats.base.sdk29AndUp
 import com.yotfr.randomcats.presentation.screens.randomcats.event.RandomCatEvent
+import com.yotfr.randomcats.presentation.spacing
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -95,10 +96,10 @@ fun RandomCatScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
-                        top = 0.dp,
-                        start = 32.dp,
-                        end = 32.dp,
-                        bottom = 32.dp
+                        top = MaterialTheme.spacing.default,
+                        start = MaterialTheme.spacing.large,
+                        end = MaterialTheme.spacing.large,
+                        bottom = MaterialTheme.spacing.large
                     )
             ) {
                 val (peekingCatTopRow, catCard, peekingCatBottomRow, buttonRow) = createRefs()
@@ -112,7 +113,7 @@ fun RandomCatScreen(
                             end.linkTo(parent.end)
                         },
                     peekingCatPainter = painterResource(id = R.drawable.card_cat_peeking),
-                    onPeekingCatClicked = { viewModel.onEvent(RandomCatEvent.ChangePeekingCatLocation) },
+                    onPeekingCatClicked = { viewModel.onEvent(RandomCatEvent.PeekingCatClicked) },
                     peekingCatsLocation = state.peekingCatsLocation
                 )
                 CatCard(
@@ -146,7 +147,7 @@ fun RandomCatScreen(
                             end.linkTo(parent.end)
                         },
                     peekingCatPainter = painterResource(id = R.drawable.card_cat_peeking),
-                    onPeekingCatClicked = { viewModel.onEvent(RandomCatEvent.ChangePeekingCatLocation) },
+                    onPeekingCatClicked = { viewModel.onEvent(RandomCatEvent.PeekingCatClicked) },
                     peekingCatsLocation = state.peekingCatsLocation
                 )
                 FlipButtonRow(
@@ -156,10 +157,10 @@ fun RandomCatScreen(
                         end.linkTo(parent.end)
                     },
                     onFavouriteClicked = {
-                        viewModel.onEvent(RandomCatEvent.FavCat)
+                        viewModel.onEvent(RandomCatEvent.FavoriteIconClicked)
                     },
                     onRefreshClicked = {
-                        viewModel.onEvent(RandomCatEvent.GetNewCat)
+                        viewModel.onEvent(RandomCatEvent.LoadNewButtonClicked)
                     },
                     onSaveGalleryClicked = {
                         if (hasWriteStoragePermission()) {

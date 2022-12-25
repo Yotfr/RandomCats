@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,6 +22,7 @@ import coil.request.ImageRequest
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListEvent
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListScreenEvent
+import com.yotfr.randomcats.presentation.spacing
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -41,7 +41,9 @@ fun GridListScreen(
     val lazyStaggeredGridState = rememberLazyStaggeredGridState()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    // collecting one time uiEvents
+    /**
+     * collecting one time uiEvents
+     */
     LaunchedEffect(key1 = true) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             uiEvent.collectLatest { uiEvent ->
@@ -59,7 +61,9 @@ fun GridListScreen(
         }
     }
 
-    // scroll to item when navigate back from pager screen
+    /**
+     * scroll to item when navigate back from pager screen
+     */
     LaunchedEffect(key1 = selectedIndex) {
         coroutineScope.launch {
             lazyStaggeredGridState.scrollToItem(
@@ -72,9 +76,12 @@ fun GridListScreen(
         LazyVerticalStaggeredGrid(
             modifier = Modifier.fillMaxSize(),
             columns = StaggeredGridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(vertical = 16.dp, horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                vertical = MaterialTheme.spacing.default,
+                horizontal = MaterialTheme.spacing.small
+            ),
             state = lazyStaggeredGridState
         ) {
             itemsIndexed(state.cats) { index, cat ->
@@ -99,7 +106,7 @@ fun GridListScreen(
         if (state.isLoading) {
             ProgressIndicator(
                 modifier = Modifier.align(Alignment.TopCenter)
-                    .padding(top = 16.dp)
+                    .padding(top = MaterialTheme.spacing.default)
             )
         }
     }

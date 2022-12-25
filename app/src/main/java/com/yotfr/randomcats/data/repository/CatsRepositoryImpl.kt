@@ -32,14 +32,18 @@ class CatsRepositoryImpl @Inject constructor(
     private val catMapper: CatMapper = CatMapper()
     private val catFirebaseMapper: CatFirebaseMapper = CatFirebaseMapper()
 
-    // Current logged in user collection of cats
+    /**
+     * [catsCollectionReference] is a collection of cats of current logged-in user
+     */
     private val catsCollectionReference = auth.currentUser?.let {
         fireStore.collection("users").document(
             it.uid
         ).collection("cats")
     }
 
-    // get random car from api
+    /**
+     * [getFromApi] function gets random cat from an Api
+     */
     override suspend fun getFromApi(): Flow<Response<Cat, String>> = channelFlow {
         try {
             send(Response.Loading)
@@ -59,7 +63,10 @@ class CatsRepositoryImpl @Inject constructor(
                         )
                     )
                 }
-                // other errors not handled because api sends only Result.OK
+                /**
+                 * Other type of exceptions not handled here because an Api only return success
+                 * result with code 200
+                 */
                 else -> {
                     send(
                         Response.Exception(
@@ -73,15 +80,21 @@ class CatsRepositoryImpl @Inject constructor(
         }
     }
 
-    // upload cat to user collection of cats
+    /**
+     * [uploadToRemoteDb] method upload cat to firestore user collection of cats
+     */
     override suspend fun uploadToRemoteDb(cat: Cat): Flow<Response<Unit, String>> =
         channelFlow {
             withContext(Dispatchers.IO) {
-                // if catsCollection reference is null, the current user is null
-                // But this shouldn't happen because non authenticated user only have access to auth
-                // graph screens, null check here for the unexpected cases
+                /**
+                 * If catsCollection reference is null, the current user is null
+                 * But this shouldn't happen because non authenticated user only have access to auth
+                 * graph screens, null check here for the unexpected cases
+                 */
                 if (catsCollectionReference == null) {
-                    // The user will be redirected to the auth screen
+                    /**
+                     * The user will be redirected to the auth screen
+                     */
                     send(
                         Response.Exception(
                             cause = Cause.UserIsNotLoggedIn
@@ -89,10 +102,14 @@ class CatsRepositoryImpl @Inject constructor(
                     )
                     return@withContext
                 }
-                // Case the user is logged in
+                /**
+                 * Case the user is logged in
+                 */
                 try {
                     send(Response.Loading)
-                    // Add doc to fireStore collection
+                    /**
+                     * Add cat document to fireStore collection
+                     */
                     catsCollectionReference.add(
                         catFirebaseMapper.fromDomain(
                             domainModel = cat
@@ -114,11 +131,15 @@ class CatsRepositoryImpl @Inject constructor(
     override suspend fun getFromRemoteDb(): Flow<Response<List<Cat>, String>> = channelFlow {
         withContext(Dispatchers.IO) {
             send(Response.Loading)
-            // if catsCollection reference is null, the current user is null
-            // But this shouldn't happen because non authenticated user only have access to auth
-            // graph screens, null check here for the unexpected cases
+            /**
+             * If catsCollection reference is null, the current user is null
+             * But this shouldn't happen because non authenticated user only have access to auth
+             * graph screens, null check here for the unexpected cases
+             */
             if (catsCollectionReference == null) {
-                // The user will be redirected to the auth screen
+                /**
+                 * The user will be redirected to the auth screen
+                 */
                 send(
                     Response.Exception(
                         cause = Cause.UserIsNotLoggedIn
@@ -126,7 +147,9 @@ class CatsRepositoryImpl @Inject constructor(
                 )
                 return@withContext
             }
-            // Case the user is logged in
+            /**
+             * Case the user is logged in
+             */
             catsCollectionReference
                 .orderBy("created", Query.Direction.DESCENDING)
                 .snapshots().map {
@@ -146,15 +169,21 @@ class CatsRepositoryImpl @Inject constructor(
         }
     }
 
-    // delete cat from user cat collection
+    /**
+     * [deleteFromRemoteDb] method deletes cats document from a firestore user collection of cats
+     */
     override suspend fun deleteFromRemoteDb(cat: Cat): Flow<Response<Unit, String>> = channelFlow {
         withContext(Dispatchers.IO) {
             send(Response.Loading)
-            // if catsCollection reference is null, the current user is null
-            // But this shouldn't happen because non authenticated user only have access to auth
-            // graph screens, null check here for the unexpected cases
+            /**
+             * If catsCollection reference is null, the current user is null
+             * But this shouldn't happen because non authenticated user only have access to auth
+             * graph screens, null check here for the unexpected cases
+             */
             if (catsCollectionReference == null) {
-                // The user will be redirected to the auth screen
+                /**
+                 * The user will be redirected to the auth screen
+                 */
                 send(
                     Response.Exception(
                         cause = Cause.UserIsNotLoggedIn
@@ -162,7 +191,9 @@ class CatsRepositoryImpl @Inject constructor(
                 )
                 return@withContext
             }
-            // Case the user is logged in
+            /**
+             * Case the user is logged in
+             */
             val firebaseCat = catFirebaseMapper.fromDomain(
                 domainModel = cat
             )

@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.yotfr.randomcats.presentation.elevation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +45,7 @@ fun HorizontalPagerTopBar(
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                    1.dp
+                    MaterialTheme.elevation.extraSmall
                 )
             )
         )

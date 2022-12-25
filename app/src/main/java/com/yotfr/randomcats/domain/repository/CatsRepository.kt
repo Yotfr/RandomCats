@@ -5,7 +5,6 @@ import com.yotfr.randomcats.domain.model.Response
 import kotlinx.coroutines.flow.Flow
 
 interface CatsRepository {
-
     // get random cat
     suspend fun getFromApi(): Flow<Response<Cat, String>>
 

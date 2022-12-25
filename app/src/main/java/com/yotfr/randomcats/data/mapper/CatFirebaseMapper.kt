@@ -5,7 +5,7 @@ import com.yotfr.randomcats.domain.model.Cat
 
 class CatFirebaseMapper {
 
-    fun toDomain(firebaseModel: CatFirebase): Cat {
+    private fun toDomain(firebaseModel: CatFirebase): Cat {
         return Cat(
             url = firebaseModel.url,
             created = firebaseModel.created

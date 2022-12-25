@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
@@ -14,11 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
+import com.yotfr.randomcats.presentation.spacing
 
 @Composable
 fun Page(
@@ -42,7 +43,7 @@ fun Page(
             Image(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(64.dp)
+                    .padding(MaterialTheme.spacing.extraLarge)
                     .alpha(0.5f),
                 painter = loadingPlaceholderPainter,
                 contentDescription = "",

@@ -46,6 +46,45 @@ class PagerCatListViewModel @Inject constructor(
                     )
                 )
             }
+            is PagerCatListEvent.PageChanged -> {
+                changeDisplayDateTime(event)
+            }
+            is PagerCatListEvent.ChangeBitmap -> {
+                changeBitmap(event)
+            }
+            PagerCatListEvent.OnScreenClicked -> {
+                changeSystemBarsVisibility()
+            }
+        }
+    }
+
+    private fun changeBitmap(event: PagerCatListEvent.ChangeBitmap) {
+        _state.update {
+            it.copy(
+                currentlyDisplayedImageBitmap = event.bitmap
+            )
+        }
+    }
+
+    private fun changeSystemBarsVisibility() {
+        _state.update {
+            it.copy(
+                isSystemBarsVisible = !it.isSystemBarsVisible
+            )
+        }
+    }
+
+    private fun changeDisplayDateTime(event: PagerCatListEvent.PageChanged) {
+        _state.update {
+            it.copy(
+                displayDate = it.cats[event.pageIndex].createdDateString.substringBeforeLast(
+                    " "
+                ),
+                displayTime = it.cats[event.pageIndex].createdDateString.substringAfterLast(
+                    " "
+                ),
+                currentPage = event.pageIndex
+            )
         }
     }
 

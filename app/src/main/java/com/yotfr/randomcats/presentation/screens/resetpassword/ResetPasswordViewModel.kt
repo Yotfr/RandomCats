@@ -35,58 +35,61 @@ class ResetPasswordViewModel @Inject constructor(
                 )
             }
             ResetPasswordEvent.ResetEmailClicked -> {
-                if (isValidatedBeforeSign()) {
-                    viewModelScope.launch {
-                        userUseCases.resetPasswordUseCase(
-                            resetPasswordModel = ResetPasswordModel(
-                                email = _state.value.emailText
-                            )
-                        ).collectLatest { response ->
-                            when (response) {
-                                is Response.Loading -> {
+                resetEmail()
+            }
+        }
+    }
+
+    private fun resetEmail() {
+        if (isValidatedBeforeSign()) {
+            viewModelScope.launch {
+                userUseCases.resetPasswordUseCase(
+                    resetPasswordModel = ResetPasswordModel(
+                        email = _state.value.emailText
+                    )
+                ).collectLatest { response ->
+                    when (response) {
+                        is Response.Loading -> {
+                            _state.update {
+                                it.copy(
+                                    isLoading = true
+                                )
+                            }
+                        }
+                        is Response.Success -> {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false
+                                )
+                            }
+                            sendToUi(ResetPasswordScreenEvent.ShowEmailLinkSentSnackbar)
+                        }
+                        is Response.Exception -> {
+                            when (response.cause) {
+                                is Cause.FirebaseEmailBadlyFormattedException -> {
                                     _state.update {
                                         it.copy(
-                                            isLoading = true
+                                            isLoading = false,
+                                            isEmailInvalidError = true
                                         )
                                     }
                                 }
-                                is Response.Success -> {
+                                is Cause.InvalidFirebaseCredentialsException -> {
+                                    _state.update {
+                                        it.copy(
+                                            isLoading = false,
+                                            isNoUserWithThisEmailError = true
+                                        )
+                                    }
+                                    sendToUi(
+                                        ResetPasswordScreenEvent.ShowNoUserCorrespondingEmailSnackbar
+                                    )
+                                }
+                                is Cause.UnknownException -> {
                                     _state.update {
                                         it.copy(
                                             isLoading = false
                                         )
-                                    }
-                                    sendToUi(ResetPasswordScreenEvent.ShowEmailLinkSentSnackbar)
-                                }
-                                is Response.Exception -> {
-                                    when (response.cause) {
-                                        is Cause.FirebaseEmailBadlyFormattedException -> {
-                                            _state.update {
-                                                it.copy(
-                                                    isLoading = false,
-                                                    isEmailInvalidError = true
-                                                )
-                                            }
-                                        }
-                                        is Cause.InvalidFirebaseCredentialsException -> {
-                                            _state.update {
-                                                it.copy(
-                                                    isLoading = false,
-                                                    isNoUserWithThisEmailError = true
-                                                )
-                                            }
-                                            sendToUi(
-                                                ResetPasswordScreenEvent.ShowNoUserCorrespondingEmailSnackbar
-                                            )
-                                        }
-                                        is Cause.UnknownException -> {
-                                            _state.update {
-                                                it.copy(
-                                                    isLoading = false
-                                                )
-                                            }
-                                        }
-                                        else -> Unit
                                     }
                                 }
                                 else -> Unit

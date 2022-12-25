@@ -5,10 +5,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.yotfr.randomcats.domain.model.Theme
+import com.yotfr.randomcats.presentation.Elevation
+import com.yotfr.randomcats.presentation.LocalElevation
+import com.yotfr.randomcats.presentation.LocalSpacing
+import com.yotfr.randomcats.presentation.Spacing
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -96,7 +101,8 @@ fun RandomCatsTheme(
     }
 
     ConfigureSystemBars(theme = theme)
-
+    CompositionLocalProvider(LocalSpacing provides Spacing()) {}
+    CompositionLocalProvider(LocalElevation provides Elevation()) {}
     MaterialTheme(
         colorScheme = colors,
         typography = Typography,

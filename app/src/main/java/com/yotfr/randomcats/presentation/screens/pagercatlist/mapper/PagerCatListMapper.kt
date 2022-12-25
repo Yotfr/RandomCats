@@ -7,7 +7,7 @@ import java.util.*
 
 class PagerCatListMapper {
 
-    fun fromDomain(domainModel: Cat): PagerCatListModel {
+    private fun fromDomain(domainModel: Cat): PagerCatListModel {
         return PagerCatListModel(
             url = domainModel.url,
             created = domainModel.created,

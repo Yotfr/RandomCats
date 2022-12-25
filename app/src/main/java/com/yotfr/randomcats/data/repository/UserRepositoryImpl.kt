@@ -28,20 +28,26 @@ class UserRepositoryImpl @Inject constructor(
 
     private val usersCollectionReference = fireStore.collection("users")
 
-    // signUp user and create use document in fireStore
+    /**
+     * [signUpUser] method create user account and create user document in firestore
+     */
     override fun signUpUser(signUpModel: SignUpModel): Flow<Response<Unit, String>> = channelFlow {
         withContext(Dispatchers.IO) {
             try {
                 send(Response.Loading)
                 auth.createUserWithEmailAndPassword(signUpModel.email, signUpModel.password).await()
-                // At this point, the user is successfully created, user cannot be null
+                /**
+                 * At this point, the user is successfully created, user cannot be null
+                 */
                 val user = auth.currentUser ?: throw IllegalArgumentException(
                     "User is null"
                 )
                 val email = user.email ?: throw IllegalArgumentException(
                     "Email is null"
                 )
-                // create user document reference, ref will be later user in catsRepository
+                /**
+                 * Create user document reference, it will be later used in catsRepository
+                 */
                 fireStore.collection("users").document(user.uid).set(
                     UserFirebase(
                         email = email,
@@ -58,8 +64,10 @@ class UserRepositoryImpl @Inject constructor(
                             )
                         )
                     }
-                    // Email validation happens in the viewModel, but "Patterns" validate email not like
-                    // firebase requires
+                    /**
+                     * Email validation happens in the viewModel, but "Patterns" validate email not
+                     * like firebase requires
+                     */
                     is FirebaseAuthInvalidCredentialsException -> {
                         send(
                             Response.Exception(
@@ -142,7 +150,10 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    // This method required to determine which start destination will be used (auth or home)
+    /**
+     * [isSignedIn] method is required to determine which start destination will be used
+     * (auth or home)
+     */
     override fun isSignedIn(): Boolean = auth.currentUser != null
 
     override fun signOut(): Flow<Response<Unit, String>> = channelFlow {

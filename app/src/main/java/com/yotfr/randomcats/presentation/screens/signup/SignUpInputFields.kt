@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.yotfr.randomcats.presentation.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,8 +128,8 @@ fun SignUpInputFields(
             leadingIcon = {
                 Row(
                     modifier = Modifier.padding(
-                        start = 32.dp,
-                        end = 8.dp
+                        start = MaterialTheme.spacing.large,
+                        end = MaterialTheme.spacing.small
                     )
                 ) {
                     Icon(Icons.Outlined.Person, contentDescription = usernameLabelText)
@@ -205,8 +206,8 @@ fun SignUpInputFields(
             leadingIcon = {
                 Row(
                     modifier = Modifier.padding(
-                        start = 32.dp,
-                        end = 8.dp
+                        start = MaterialTheme.spacing.large,
+                        end = MaterialTheme.spacing.small
                     )
                 ) {
                     Icon(Icons.Outlined.Email, contentDescription = emailLabelText)
@@ -278,8 +279,8 @@ fun SignUpInputFields(
             leadingIcon = {
                 Row(
                     modifier = Modifier.padding(
-                        start = 32.dp,
-                        end = 8.dp
+                        start = MaterialTheme.spacing.large,
+                        end = MaterialTheme.spacing.small
                     )
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = passwordLabelText)
@@ -289,8 +290,8 @@ fun SignUpInputFields(
                 if (passwordText.isNotBlank()) {
                     Row(
                         modifier = Modifier.padding(
-                            end = 32.dp,
-                            start = 8.dp
+                            end = MaterialTheme.spacing.large,
+                            start = MaterialTheme.spacing.small
                         )
                     ) {
                         IconButton(onClick = { passwordHidden = !passwordHidden }) {
@@ -383,8 +384,8 @@ fun SignUpInputFields(
             leadingIcon = {
                 Row(
                     modifier = Modifier.padding(
-                        start = 32.dp,
-                        end = 8.dp
+                        start = MaterialTheme.spacing.large,
+                        end = MaterialTheme.spacing.small
                     )
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = confirmPasswordLabelText)
@@ -394,8 +395,8 @@ fun SignUpInputFields(
                 if (confirmPasswordText.isNotBlank()) {
                     Row(
                         modifier = Modifier.padding(
-                            end = 32.dp,
-                            start = 8.dp
+                            end = MaterialTheme.spacing.large,
+                            start = MaterialTheme.spacing.small
                         )
                     ) {
                         IconButton(onClick = { confirmPasswordHidden = !confirmPasswordHidden }) {

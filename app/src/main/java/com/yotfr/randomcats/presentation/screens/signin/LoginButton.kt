@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.yotfr.randomcats.presentation.spacing
 
 @Composable
 fun LoginButton(
@@ -24,7 +25,7 @@ fun LoginButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = 64.dp
+                    horizontal = MaterialTheme.spacing.extraLarge
                 ),
             onClick = {
                 onLoginClicked()
@@ -32,7 +33,7 @@ fun LoginButton(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(vertical = 12.dp)
+                    .padding(vertical = MaterialTheme.spacing.small)
                     .align(Alignment.CenterVertically)
             ) {
                 if (isLoading) {

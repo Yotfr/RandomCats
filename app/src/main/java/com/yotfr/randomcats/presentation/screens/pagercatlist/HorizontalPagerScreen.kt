@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -58,10 +57,15 @@ fun HorizontalPagerScreen(
     val uiEvent = viewModel.uiEvent
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val coroutineScope = rememberCoroutineScope()
     val permissionState = rememberPermissionState(
         permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
+    val pagerState = rememberPagerState(
+        initialPage = selectedIndex
+    )
+
     fun hasWriteStoragePermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             true
@@ -89,35 +93,6 @@ fun HorizontalPagerScreen(
         }
     }
 
-    val pagerState = rememberPagerState(
-        initialPage = selectedIndex
-    )
-    // date currently selected page image
-    var date by remember {
-        mutableStateOf("")
-    }
-    // time currently selected page image
-    var time by remember {
-        mutableStateOf("")
-    }
-    // top and bottom bar disabled / enabled on page image click
-    var barsVisibility by remember {
-        mutableStateOf(false)
-    }
-    // bitmap currently selected page image
-    var bitmap by remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
-    /**
-     * Contains index of page currently displayed by the pager, because [pagerState] doesn't seem
-     * to work properly in this case */
-    var curPage by remember {
-        mutableStateOf(0)
-    }
-
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-
     // collecting uiEvents
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -136,13 +111,14 @@ fun HorizontalPagerScreen(
     }
 
     // change top app bar date and time on page change
-    LaunchedEffect(pagerState.currentPage, state) {
+    LaunchedEffect(pagerState.currentPage) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             if (state.cats.isNotEmpty()) {
-                curPage = page
-                date = state.cats[page].createdDateString.substringBeforeLast(" ")
-                time = state.cats[page].createdDateString.substringAfterLast(" ")
-                Log.v("HorizontalPagerScreen","page: $page date: $date time: $time")
+                viewModel.onEvent(
+                    PagerCatListEvent.PageChanged(
+                        pageIndex = page
+                    )
+                )
             }
         }
     }
@@ -151,13 +127,13 @@ fun HorizontalPagerScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             HorizontalPagerTopBar(
-                isVisible = barsVisibility,
-                date = date,
-                time = time,
+                isVisible = state.isSystemBarsVisible,
+                date = state.displayDate,
+                time = state.displayTime,
                 onBackPressed = {
                     viewModel.onEvent(
                         PagerCatListEvent.BackArrowPressed(
-                            selectedIndex = curPage
+                            selectedIndex = state.currentPage
                         )
                     )
                 }
@@ -165,10 +141,10 @@ fun HorizontalPagerScreen(
         },
         bottomBar = {
             HorizontalPagerBottomBar(
-                isVisible = barsVisibility,
+                isVisible = state.isSystemBarsVisible,
                 onShareClicked = {
                     coroutineScope.launch {
-                        bitmap?.let {
+                        state.currentlyDisplayedImageBitmap?.let {
                             val uri = getImageToShare(
                                 bitmap = it,
                                 context = context
@@ -183,7 +159,7 @@ fun HorizontalPagerScreen(
                 onDownloadClicked = {
                     if (hasWriteStoragePermission()) {
                         coroutineScope.launch {
-                            bitmap?.let {
+                            state.currentlyDisplayedImageBitmap?.let {
                                 val isSuccess = saveMediaToStorage(
                                     bitmap = it,
                                     context = context
@@ -202,7 +178,7 @@ fun HorizontalPagerScreen(
                 onDeleteClicked = {
                     viewModel.onEvent(
                         PagerCatListEvent.DeleteCatClicked(
-                            cat = state.cats[curPage]
+                            cat = state.cats[state.currentPage]
                         )
                     )
                 }
@@ -215,9 +191,20 @@ fun HorizontalPagerScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable {
-                        barsVisibility = !barsVisibility
+                        viewModel.onEvent(PagerCatListEvent.OnScreenClicked)
                     }
             ) { page ->
+                /**
+                 * Launched effect is only triggered once to update top bar display date
+                 * time with selected index coming from fridList screen
+                 */
+                LaunchedEffect(key1 = true) {
+                    viewModel.onEvent(
+                        PagerCatListEvent.PageChanged(
+                            pageIndex = selectedIndex
+                        )
+                    )
+                }
                 Page(
                     modifier = Modifier.fillMaxSize(),
                     request = ImageRequest.Builder(context.applicationContext)
@@ -228,8 +215,8 @@ fun HorizontalPagerScreen(
                         .build(),
                     catContentDescription = stringResource(id = R.string.random_cat_image),
                     loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder),
-                    updateBitmap = {
-                        bitmap = it
+                    updateBitmap = { bitmap ->
+                        viewModel.onEvent(PagerCatListEvent.ChangeBitmap(bitmap))
                     }
                 )
             }

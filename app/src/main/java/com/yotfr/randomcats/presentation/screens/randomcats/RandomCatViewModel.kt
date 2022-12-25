@@ -32,16 +32,16 @@ class RandomCatViewModel @Inject constructor(
 
     fun onEvent(event: RandomCatEvent) {
         when (event) {
-            RandomCatEvent.FavCat -> {
+            RandomCatEvent.FavoriteIconClicked -> {
                 uploadCatToRemoteDb()
                 changePeekingCatLocation()
                 getCat()
             }
-            RandomCatEvent.GetNewCat -> {
+            RandomCatEvent.LoadNewButtonClicked -> {
                 changePeekingCatLocation()
                 getCat()
             }
-            RandomCatEvent.ChangePeekingCatLocation -> {
+            RandomCatEvent.PeekingCatClicked -> {
                 changePeekingCatLocation()
             }
         }

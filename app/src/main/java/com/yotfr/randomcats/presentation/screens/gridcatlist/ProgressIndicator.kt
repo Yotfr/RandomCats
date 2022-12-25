@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.yotfr.randomcats.presentation.elevation
+import com.yotfr.randomcats.presentation.spacing
 
 @Composable
 fun ProgressIndicator(
@@ -22,10 +24,10 @@ fun ProgressIndicator(
             .clip(CircleShape)
             .background(
                 color = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                    elevation = 8.dp
+                    elevation = MaterialTheme.elevation.large
                 )
             )
-            .padding(8.dp)
+            .padding(MaterialTheme.spacing.small)
     ) {
         CircularProgressIndicator()
     }

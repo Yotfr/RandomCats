@@ -9,7 +9,9 @@ class CatMapper {
     fun toDomain(response: CatResponse): Cat {
         return Cat(
             url = Constants.BASE_URL + response.url,
-            // Will be replaced with if the user adds to favorites
+            /**
+             * [created] will be replaced when the user will add cat to favorites
+             */
             created = 0L
         )
     }
