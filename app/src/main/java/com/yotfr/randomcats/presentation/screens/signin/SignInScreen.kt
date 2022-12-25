@@ -74,7 +74,7 @@ fun SignInScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                imageResource = painterResource(id = R.drawable.cat_logggg)
+                imageResource = painterResource(id = R.drawable.cat_login_screen)
             )
             Spacer(
                 modifier = Modifier

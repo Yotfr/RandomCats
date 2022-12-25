@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.yotfr.randomcats.R
 import com.yotfr.randomcats.presentation.screens.resetpassword.event.ResetPasswordEvent
 import com.yotfr.randomcats.presentation.screens.resetpassword.event.ResetPasswordScreenEvent
+import com.yotfr.randomcats.presentation.spacing
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,8 +84,8 @@ fun ResetPasswordScreen(
                 .fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
-                    start = dimensionResource(id = R.dimen.large_padding),
-                    end = dimensionResource(id = R.dimen.large_padding)
+                    start = MaterialTheme.spacing.large,
+                    end = MaterialTheme.spacing.large
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

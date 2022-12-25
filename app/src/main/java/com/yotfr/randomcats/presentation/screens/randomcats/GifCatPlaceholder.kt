@@ -33,7 +33,7 @@ fun GifCatPlaceholder(
     Image(
         painter = rememberAsyncImagePainter(
             ImageRequest.Builder(context)
-                .data(data = R.drawable.gif_loading_cat)
+                .data(data = R.drawable.gif_loading_placeholder)
                 .apply(
                     block = {
                         size(Size.ORIGINAL)

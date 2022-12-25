@@ -112,7 +112,7 @@ fun RandomCatScreen(
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
                         },
-                    peekingCatPainter = painterResource(id = R.drawable.card_cat_peeking),
+                    peekingCatPainter = painterResource(id = R.drawable.peek_cat),
                     onPeekingCatClicked = { viewModel.onEvent(RandomCatEvent.PeekingCatClicked) },
                     peekingCatsLocation = state.peekingCatsLocation
                 )
@@ -146,7 +146,7 @@ fun RandomCatScreen(
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
                         },
-                    peekingCatPainter = painterResource(id = R.drawable.card_cat_peeking),
+                    peekingCatPainter = painterResource(id = R.drawable.peek_cat),
                     onPeekingCatClicked = { viewModel.onEvent(RandomCatEvent.PeekingCatClicked) },
                     peekingCatsLocation = state.peekingCatsLocation
                 )

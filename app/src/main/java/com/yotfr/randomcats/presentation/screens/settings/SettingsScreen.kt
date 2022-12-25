@@ -56,7 +56,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 userNameText = state.userName,
                 emailText = state.email,
-                defaultProfileImagePainter = painterResource(id = R.drawable.cat_log)
+                defaultProfileImagePainter = painterResource(id = R.drawable.cat_profile_image)
             )
             AppearanceSection(
                 modifier = Modifier.fillMaxWidth(),

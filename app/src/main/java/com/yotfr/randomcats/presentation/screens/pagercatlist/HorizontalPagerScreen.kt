@@ -214,7 +214,7 @@ fun HorizontalPagerScreen(
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .build(),
                     catContentDescription = stringResource(id = R.string.random_cat_image),
-                    loadingPlaceholderPainter = painterResource(id = R.drawable.card_cat_placeholder),
+                    loadingPlaceholderPainter = painterResource(id = R.drawable.cat_profile_image),
                     updateBitmap = { bitmap ->
                         viewModel.onEvent(PagerCatListEvent.ChangeBitmap(bitmap))
                     }

@@ -5,8 +5,8 @@
     </style>
     
     <style name="Theme.RandomCatsSplash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/teal_200</item>
-        <item name="android:windowBackground">@color/teal_200</item>
+        <item name="windowSplashScreenBackground">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
         <item name="postSplashScreenTheme">@style/Theme.RandomCats</item>
     </style>
     
