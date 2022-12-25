@@ -89,6 +89,16 @@ class SignInViewModel @Inject constructor(
                                 }
                                 sendEvent(SignInScreenEvent.ShowInvalidCredentialsError)
                             }
+                            Cause.BadConnectionException -> {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        isSuccess = false,
+                                        isInvalidCredentialsError = false
+                                    )
+                                }
+                                sendEvent(SignInScreenEvent.ShowBadConnectionExceptionSnackbar)
+                            }
                             else -> Unit
                         }
                     }

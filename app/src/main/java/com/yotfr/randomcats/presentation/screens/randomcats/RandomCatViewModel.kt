@@ -2,6 +2,7 @@ package com.yotfr.randomcats.presentation.screens.randomcats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.randomcats.event.RandomCatEvent
@@ -108,18 +109,31 @@ class RandomCatViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isCatLoading = false,
-                                cat = result.data
+                                cat = result.data,
+                                isButtonsEnabled = true
                             )
                         }
                     }
                     is Response.Exception -> {
-                        _state.update {
-                            it.copy(
-                                isCatLoading = false
-                            )
+                        when (result.cause) {
+                            Cause.BadConnectionException -> {
+                                _state.update {
+                                    it.copy(
+                                        isCatLoading = false,
+                                        isButtonsEnabled = false
+                                    )
+                                }
+                            }
+                            else -> {
+                                _state.update {
+                                    it.copy(
+                                        isCatLoading = false,
+                                        isButtonsEnabled = false
+                                    )
+                                }
+                            }
                         }
                     }
-                    else -> Unit
                 }
             }
         }

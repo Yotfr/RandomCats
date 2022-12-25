@@ -48,6 +48,13 @@ fun SignInScreen(
                             )
                         }
                     }
+                    SignInScreenEvent.ShowBadConnectionExceptionSnackbar -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.resources.getString(R.string.no_internet_connection)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -132,7 +139,7 @@ fun SignInScreen(
             LoginButton(
                 modifier = Modifier.wrapContentSize(),
                 forgotPasswordText = stringResource(id = R.string.forgot_password),
-                loginButtonText = stringResource(id = R.string.login),
+                loginButtonText = stringResource(id = R.string.enter),
                 onLoginClicked = {
                     viewModel.onEvent(SignInEvent.SignInClicked)
                 },

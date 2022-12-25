@@ -85,6 +85,16 @@ class ResetPasswordViewModel @Inject constructor(
                                         ResetPasswordScreenEvent.ShowNoUserCorrespondingEmailSnackbar
                                     )
                                 }
+                                is Cause.BadConnectionException -> {
+                                    _state.update {
+                                        it.copy(
+                                            isLoading = false
+                                        )
+                                    }
+                                    sendToUi(
+                                        ResetPasswordScreenEvent.ShowNoInternetConnectionExceptionSnackbar
+                                    )
+                                }
                                 is Cause.UnknownException -> {
                                     _state.update {
                                         it.copy(

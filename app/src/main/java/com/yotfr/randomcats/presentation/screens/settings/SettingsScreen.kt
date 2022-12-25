@@ -58,6 +58,7 @@ fun SettingsScreen(
                 emailText = state.email,
                 defaultProfileImagePainter = painterResource(id = R.drawable.cat_profile_image)
             )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             AppearanceSection(
                 modifier = Modifier.fillMaxWidth(),
                 appearanceTitleText = stringResource(id = R.string.appearance),

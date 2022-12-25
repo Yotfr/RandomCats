@@ -7,5 +7,6 @@ data class RandomCatState(
     val cat: Cat? = null,
     val error: String = "",
     val peekingCatsLocation: PeekingCatsLocations = PeekingCatsLocations.BOTTOM_RIGHT,
-    val isCatUploading: Boolean = false
+    val isCatUploading: Boolean = false,
+    val isButtonsEnabled: Boolean = false
 )

@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import com.yotfr.randomcats.presentation.elevation
 import com.yotfr.randomcats.presentation.spacing
 
@@ -57,7 +56,7 @@ fun AppearanceSection(
                     }
                     .padding(
                         horizontal = MaterialTheme.spacing.small,
-                        vertical = MaterialTheme.spacing.default
+                        vertical = MaterialTheme.spacing.medium
                     )
             ) {
                 Icon(

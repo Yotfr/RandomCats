@@ -7,6 +7,7 @@ import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.model.SignUpModel
 import com.yotfr.randomcats.domain.use_case.users.UserUseCases
+import com.yotfr.randomcats.presentation.screens.signin.event.SignInScreenEvent
 import com.yotfr.randomcats.presentation.screens.signup.event.SignUpEvent
 import com.yotfr.randomcats.presentation.screens.signup.event.SignUpScreenEvent
 import com.yotfr.randomcats.presentation.screens.signup.model.SignUpState
@@ -117,6 +118,15 @@ class SignUpViewModel @Inject constructor(
                                         isEmailInvalidError = true
                                     )
                                 }
+                            }
+                            Cause.BadConnectionException -> {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        isSuccess = false
+                                    )
+                                }
+                                sendEvent(SignUpScreenEvent.ShowNoInternetConnectionExceptionSnackbar)
                             }
                             else -> Unit
                         }

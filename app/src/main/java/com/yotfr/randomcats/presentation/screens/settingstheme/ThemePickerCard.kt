@@ -31,7 +31,7 @@ fun ThemePickerCard(
                 .clickable {
                     onThemeSelected(Theme.LIGHT)
                 }
-                .padding(MaterialTheme.spacing.default),
+                .padding(MaterialTheme.spacing.medium),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = lightThemeText)
@@ -53,7 +53,7 @@ fun ThemePickerCard(
                 .clickable {
                     onThemeSelected(Theme.DARK)
                 }
-                .padding(MaterialTheme.spacing.default),
+                .padding(MaterialTheme.spacing.medium),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = darkThemeText)
@@ -75,7 +75,7 @@ fun ThemePickerCard(
                 .clickable {
                     onThemeSelected(Theme.SYSTEM_DEFAULT)
                 }
-                .padding(MaterialTheme.spacing.default),
+                .padding(MaterialTheme.spacing.medium),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = systemDefaultThemeText)

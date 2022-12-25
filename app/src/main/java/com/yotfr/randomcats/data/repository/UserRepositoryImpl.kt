@@ -1,5 +1,7 @@
 package com.yotfr.randomcats.data.repository
 
+import android.util.Log
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -75,6 +77,13 @@ class UserRepositoryImpl @Inject constructor(
                             )
                         )
                     }
+                    is FirebaseNetworkException -> {
+                        send(
+                            Response.Exception(
+                                cause = Cause.BadConnectionException
+                            )
+                        )
+                    }
                     else -> {
                         send(
                             Response.Exception(
@@ -115,6 +124,13 @@ class UserRepositoryImpl @Inject constructor(
                         send(
                             Response.Exception(
                                 cause = Cause.InvalidFirebaseCredentialsException
+                            )
+                        )
+                    }
+                    is FirebaseNetworkException -> {
+                        send(
+                            Response.Exception(
+                                cause = Cause.BadConnectionException
                             )
                         )
                     }
@@ -194,6 +210,13 @@ class UserRepositoryImpl @Inject constructor(
                             send(
                                 Response.Exception(
                                     cause = Cause.InvalidFirebaseCredentialsException
+                                )
+                            )
+                        }
+                        is FirebaseNetworkException -> {
+                            send(
+                                Response.Exception(
+                                    cause = Cause.BadConnectionException
                                 )
                             )
                         }

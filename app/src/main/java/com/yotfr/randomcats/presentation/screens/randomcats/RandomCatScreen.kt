@@ -205,7 +205,8 @@ fun RandomCatScreen(
                     favouriteIconDescription = stringResource(id = R.string.like),
                     saveGalleryIconDescription = stringResource(id = R.string.save_to_gallery),
                     shareIconDescription = stringResource(id = R.string.share),
-                    flipButtonsIconDescription = stringResource(id = R.string.more_actions)
+                    flipButtonsIconDescription = stringResource(id = R.string.more_actions),
+                    isButtonsEnabled = state.isButtonsEnabled
                 )
             }
         }

@@ -52,6 +52,13 @@ fun ResetPasswordScreen(
                             )
                         }
                     }
+                    ResetPasswordScreenEvent.ShowNoInternetConnectionExceptionSnackbar -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.resources.getString(R.string.no_internet_connection)
+                            )
+                        }
+                    }
                 }
             }
         }

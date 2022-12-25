@@ -26,6 +26,7 @@ fun FlipButtonRow(
     saveGalleryIconDescription: String,
     shareIconDescription: String,
     flipButtonsIconDescription: String,
+    isButtonsEnabled: Boolean,
     modifier: Modifier
 ) {
     var flipState by remember {
@@ -51,7 +52,8 @@ fun FlipButtonRow(
             backIcon = saveGalleryIcon,
             backIconDescription = saveGalleryIconDescription,
             frontIcon = refreshIcon,
-            frontIconDescription = refreshIconDescription
+            frontIconDescription = refreshIconDescription,
+            isButtonEnabled = isButtonsEnabled
         )
         IconButton(
             onClick = { flipState = flipState.next }
@@ -77,7 +79,8 @@ fun FlipButtonRow(
             backIcon = shareIcon,
             backIconDescription = shareIconDescription,
             frontIcon = favouriteIcon,
-            frontIconDescription = favouriteIconDescription
+            frontIconDescription = favouriteIconDescription,
+            isButtonEnabled = isButtonsEnabled
         )
     }
 }

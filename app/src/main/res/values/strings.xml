@@ -10,6 +10,7 @@
     <string name="delete_from_favorite">Delete from favorite</string>
     
     <string name="login">Login</string>
+    <string name="enter">Login</string>
     <string name="fill_input_below">Please fill the input below here</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -62,5 +63,7 @@
     <string name="saved_to_gallery">Image saved to gallery</string>
     <string name="permission_request_rationale">Storage permission required for this feature to be available. Please grant the permission</string>
     <string name="permission_permanently_denied">Storage permission was permanently denied. You can enable it in the app settings</string>
+    
+    <string name="no_internet_connection">No internet connection</string>
 
 </resources>

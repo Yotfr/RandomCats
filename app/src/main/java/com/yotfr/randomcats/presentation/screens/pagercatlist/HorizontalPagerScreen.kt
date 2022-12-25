@@ -176,11 +176,15 @@ fun HorizontalPagerScreen(
                     }
                 },
                 onDeleteClicked = {
-                    viewModel.onEvent(
-                        PagerCatListEvent.DeleteCatClicked(
-                            cat = state.cats[state.currentPage]
+                    if (state.cats.isNotEmpty()) {
+                        viewModel.onEvent(
+                            PagerCatListEvent.DeleteCatClicked(
+                                cat = state.cats[state.currentPage]
+                            )
                         )
-                    )
+                    }else {
+                        onBackPressed(0)
+                    }
                 }
             )
         },

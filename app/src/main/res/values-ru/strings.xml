@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RandomCats</string>
+
+    <string name="random_cat_image">Случайное изображение кота</string>
+    <string name="load_new_cat">Загрузить нового кота</string>
+    <string name="share">Поделиться</string>
+    <string name="save_to_gallery">Сохранить в галерею</string>
+    <string name="like">Like</string>
+    <string name="more_options">Больше</string>
+    <string name="delete_from_favorite">Удалить из избранного</string>
+
+    <string name="login">Авторизация</string>
+    <string name="fill_input_below">Пожалуйста заполните поля ниже</string>
+    <string name="email">Email</string>
+    <string name="password">Пароль</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="do_not_have_acc">Нет аккаунта?</string>
+    <string name="sign_up">Создать</string>
+    <string name="show_password">Показать пароль</string>
+    <string name="hide_password">Скрыть пароль</string>
+    <string name="enter_email_adress">Пожалуйста введите адрес электронной почты</string>
+    <string name="enter_password">Пожалуйста введите пароль</string>
+    <string name="email_adress_not_valid">Некорректный адрес электронной почты</string>
+    <string name="invalid_credentials">Неправильный адрес электронной почти или пароль</string>
+
+
+    <string name="create_account">Создать аккаунт</string>
+    <string name="enter_username">Пожалуйста введите имя пользователя</string>
+    <string name="confirm_password">Подтверждение пароля</string>
+    <string name="user_name">Имя пользователя</string>
+    <string name="already_have_acc">Уже есть аккаунт?</string>
+    <string name="sign_in">Войти</string>
+    <string name="password_too_short">Введите не менее 6 символов</string>
+    <string name="passwords_do_not_match">Пароли не совпадают</string>
+    <string name="to_sign_in">To sign in</string>
+    <string name="user_already_exists">Пользователь уже существует</string>
+    <string name="account_successfully_created">Аккаунт успешно создан</string>
+
+    <string name="more_actions">Больше</string>
+    <string name="your_favorite_cat">Ваш избранный кот</string>
+
+    <string name="settings">Настройки</string>
+    <string name="account">Аккаунт</string>
+    <string name="change_password">Сменить пароль</string>
+    <string name="appearance">Внешний вид</string>
+    <string name="theme">Темы</string>
+    <string name="general">Общие</string>
+    <string name="language">Язык</string>
+    <string name="sign_out">Выйти</string>
+    <string name="enter">Войти</string>
+
+    <string name="light">Светлая</string>
+    <string name="dark">Темная</string>
+    <string name="system_default">По умолчанию</string>
+
+    <string name="reset_password">Восстановление пароля</string>
+    <string name="reset_password_subtitle">Пожалуйста введите адрес электронной почты, привязанный к аккаунту</string>
+    <string name="send">Отправить</string>
+
+    <string name="no_user_with_this_email">Пользователь с этим адресом электронной почты не найден</string>
+    <string name="check_email">Проверьте свой адрес электронной почты</string>
+
+    <string name="saved_to_gallery">Сохранено в галерею</string>
+    <string name="permission_request_rationale">Storage permission required for this feature to be available. Please grant the permission</string>
+    <string name="permission_permanently_denied">Storage permission was permanently denied. You can enable it in the app settings</string>
+
+    <string name="no_internet_connection">Нет подключения к интернету</string>
+
+</resources>

@@ -22,7 +22,8 @@ fun FlipButton(
     backIcon: ImageVector,
     frontIcon: ImageVector,
     backIconDescription: String,
-    frontIconDescription: String
+    frontIconDescription: String,
+    isButtonEnabled: Boolean
 ) {
     val rotation = animateFloatAsState(
         targetValue = buttonFace.angle,
@@ -43,7 +44,8 @@ fun FlipButton(
                     rotationY = rotation.value
                 }
                 cameraDistance = 12f * density
-            }
+            },
+        enabled = isButtonEnabled
     ) {
         if (rotation.value <= 90) {
             Icon(
