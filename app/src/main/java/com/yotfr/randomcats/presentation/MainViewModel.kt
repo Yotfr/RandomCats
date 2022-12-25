@@ -8,10 +8,7 @@ import com.yotfr.randomcats.domain.use_case.preferences.UserPreferencesUseCases
 import com.yotfr.randomcats.domain.use_case.users.UserUseCases
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,26 +16,26 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val userUseCases: UserUseCases,
     private val userPreferencesUseCases: UserPreferencesUseCases
-): ViewModel() {
+) : ViewModel() {
 
-    private val _state = mutableStateOf(MainActivivtyState())
-    val state: State<MainActivivtyState> = _state
+    private val _state = mutableStateOf(MainActivityState())
+    val state: State<MainActivityState> = _state
 
     init {
         checkSettings()
     }
 
     private fun checkSettings() {
-        _state.value = MainActivivtyState(
+        _state.value = MainActivityState(
             isLoading = true
         )
         viewModelScope.launch {
-            if(userUseCases.checkUserSignUseCase()) {
-                _state.value  = _state.value.copy(
+            if (userUseCases.checkUserSignUseCase()) {
+                _state.value = _state.value.copy(
                     startDestinationRoute = RootGraph.HOME,
                     isLoading = false
                 )
-            }else {
+            } else {
                 _state.value = _state.value.copy(
                     startDestinationRoute = RootGraph.AUTH,
                     isLoading = false

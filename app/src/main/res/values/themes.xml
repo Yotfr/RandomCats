@@ -2,12 +2,11 @@
 <resources>
 
     <style name="Theme.RandomCats" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
     </style>
     
     <style name="Theme.RandomCatsSplash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@drawable/splash_screen_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/cat_login_screen</item>
+        <item name="windowSplashScreenBackground">@color/teal_200</item>
+        <item name="android:windowBackground">@color/teal_200</item>
         <item name="postSplashScreenTheme">@style/Theme.RandomCats</item>
     </style>
     
