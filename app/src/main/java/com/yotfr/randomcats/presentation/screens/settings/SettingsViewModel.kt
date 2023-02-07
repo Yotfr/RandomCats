@@ -3,7 +3,7 @@ package com.yotfr.randomcats.presentation.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.use_case.users.UserUseCases
+import com.yotfr.randomcats.domain.usecase.users.UserUseCases
 import com.yotfr.randomcats.presentation.screens.settings.event.SettingsEvent
 import com.yotfr.randomcats.presentation.screens.settings.event.SettingsScreenEvent
 import com.yotfr.randomcats.presentation.screens.settings.model.SettingsState

@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.base
+package com.yotfr.randomcats.util
 
 import android.os.Build
 import com.google.accompanist.permissions.ExperimentalPermissionsApi

@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.domain.use_case.users
+package com.yotfr.randomcats.domain.usecase.users
 
 import com.yotfr.randomcats.domain.model.ResetPasswordModel
 import com.yotfr.randomcats.domain.model.Response

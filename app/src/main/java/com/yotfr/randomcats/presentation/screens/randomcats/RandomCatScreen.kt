@@ -31,8 +31,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.yotfr.randomcats.R
-import com.yotfr.randomcats.base.isPermanentlyDenied
-import com.yotfr.randomcats.base.sdk29AndUp
+import com.yotfr.randomcats.util.isPermanentlyDenied
+import com.yotfr.randomcats.util.sdk29AndUp
 import com.yotfr.randomcats.presentation.screens.randomcats.event.RandomCatEvent
 import com.yotfr.randomcats.presentation.spacing
 import kotlinx.coroutines.launch

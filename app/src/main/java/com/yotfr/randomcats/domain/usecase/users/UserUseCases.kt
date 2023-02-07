@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.domain.use_case.users
+package com.yotfr.randomcats.domain.usecase.users
 
 data class UserUseCases(
     val signUpUserUseCase: SignUpUserUseCase,

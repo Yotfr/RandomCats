@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.navigation.home.cat_list
+package com.yotfr.randomcats.presentation.navigation.home.catlist
 
 const val DETAILS_SELECTED_INDEX_KEY = "SELECTED_INDEX"
 

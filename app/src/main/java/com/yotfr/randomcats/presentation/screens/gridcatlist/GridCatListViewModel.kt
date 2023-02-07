@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Cat
 import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
+import com.yotfr.randomcats.domain.usecase.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListEvent
 import com.yotfr.randomcats.presentation.screens.gridcatlist.event.GridCatListScreenEvent
 import com.yotfr.randomcats.presentation.screens.gridcatlist.mapper.GridCatListMapper

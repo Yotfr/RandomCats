@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.presentation.navigation.home.cat_list
+package com.yotfr.randomcats.presentation.navigation.home.catlist
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeOut
@@ -11,7 +11,6 @@ import com.yotfr.randomcats.presentation.screens.pagercatlist.HorizontalPagerScr
 import soup.compose.material.motion.animation.*
 import soup.compose.material.motion.navigation.composable
 import soup.compose.material.motion.navigation.navigation
-import kotlin.math.sign
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.catListNavGraph(

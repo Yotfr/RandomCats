@@ -4,8 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yotfr.randomcats.domain.use_case.preferences.UserPreferencesUseCases
-import com.yotfr.randomcats.domain.use_case.users.UserUseCases
+import com.yotfr.randomcats.domain.usecase.preferences.UserPreferencesUseCases
+import com.yotfr.randomcats.domain.usecase.users.UserUseCases
 import com.yotfr.randomcats.presentation.navigation.root.RootGraph
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest

@@ -5,7 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.snapshots
 import com.google.firebase.firestore.ktx.toObjects
-import com.yotfr.randomcats.data.data_source.CatsApi
+import com.yotfr.randomcats.data.datasource.CatsApi
 import com.yotfr.randomcats.data.dto.CatFirebase
 import com.yotfr.randomcats.data.mapper.CatFirebaseMapper
 import com.yotfr.randomcats.data.mapper.CatMapper

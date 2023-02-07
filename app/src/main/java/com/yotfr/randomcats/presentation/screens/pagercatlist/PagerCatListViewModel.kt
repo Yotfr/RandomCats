@@ -3,7 +3,7 @@ package com.yotfr.randomcats.presentation.screens.pagercatlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
+import com.yotfr.randomcats.domain.usecase.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.pagercatlist.event.PagerCatListEvent
 import com.yotfr.randomcats.presentation.screens.pagercatlist.event.PagerCatListScreenEvent
 import com.yotfr.randomcats.presentation.screens.pagercatlist.mapper.PagerCatListMapper

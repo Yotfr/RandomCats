@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.domain.use_case.cats
+package com.yotfr.randomcats.domain.usecase.cats
 
 data class CatsUseCases(
     val getRandomCat: GetRandomCatUseCase,

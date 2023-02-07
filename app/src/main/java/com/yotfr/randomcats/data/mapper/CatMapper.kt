@@ -1,8 +1,8 @@
 package com.yotfr.randomcats.data.mapper
 
-import com.yotfr.randomcats.base.Constants
 import com.yotfr.randomcats.data.dto.CatResponse
 import com.yotfr.randomcats.domain.model.Cat
+import com.yotfr.randomcats.util.Constants
 
 class CatMapper {
 

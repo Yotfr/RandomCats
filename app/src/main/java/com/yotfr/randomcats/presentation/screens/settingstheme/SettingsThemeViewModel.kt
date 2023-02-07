@@ -3,7 +3,7 @@ package com.yotfr.randomcats.presentation.screens.settingstheme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Theme
-import com.yotfr.randomcats.domain.use_case.preferences.UserPreferencesUseCases
+import com.yotfr.randomcats.domain.usecase.preferences.UserPreferencesUseCases
 import com.yotfr.randomcats.presentation.screens.settingstheme.event.SettingsThemeEvent
 import com.yotfr.randomcats.presentation.screens.settingstheme.model.SettingsThemeState
 import dagger.hilt.android.lifecycle.HiltViewModel

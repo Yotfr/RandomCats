@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
-import com.yotfr.randomcats.domain.use_case.cats.CatsUseCases
+import com.yotfr.randomcats.domain.usecase.cats.CatsUseCases
 import com.yotfr.randomcats.presentation.screens.randomcats.event.RandomCatEvent
 import com.yotfr.randomcats.presentation.screens.randomcats.model.PeekingCatsLocations
 import com.yotfr.randomcats.presentation.screens.randomcats.model.RandomCatState

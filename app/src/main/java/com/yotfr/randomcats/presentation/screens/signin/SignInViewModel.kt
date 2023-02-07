@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.yotfr.randomcats.domain.model.Cause
 import com.yotfr.randomcats.domain.model.Response
 import com.yotfr.randomcats.domain.model.SignInModel
-import com.yotfr.randomcats.domain.use_case.users.UserUseCases
+import com.yotfr.randomcats.domain.usecase.users.UserUseCases
 import com.yotfr.randomcats.presentation.screens.signin.event.SignInEvent
 import com.yotfr.randomcats.presentation.screens.signin.event.SignInScreenEvent
 import com.yotfr.randomcats.presentation.screens.signin.model.SignInState

@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.domain.use_case.preferences
+package com.yotfr.randomcats.domain.usecase.preferences
 
 import com.yotfr.randomcats.domain.model.Theme
 import com.yotfr.randomcats.domain.repository.UserPreferencesRepository

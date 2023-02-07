@@ -1,4 +1,4 @@
-package com.yotfr.randomcats.data.data_source
+package com.yotfr.randomcats.data.datasource
 
 import com.yotfr.randomcats.data.dto.CatResponse
 import retrofit2.http.GET
